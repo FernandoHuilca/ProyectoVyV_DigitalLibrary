@@ -1,0 +1,15 @@
+## Archivos idea
+.idea/
+*.iml
+out/
+
+build/
+dist/
+*.egg-info/
+*.egg
+pip-wheel-metadata/
+
+.env
+.env.*
+
+*.iml
