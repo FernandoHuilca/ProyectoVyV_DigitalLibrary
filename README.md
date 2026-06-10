@@ -34,4 +34,4 @@ físicamente sin reconocimiento de quién los elabora
     
 2.  Evaluación 
     1. Calificar apuntes/comentarios 
-    2. Comentar
+    2. Comentar apuntes
