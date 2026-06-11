@@ -17,12 +17,12 @@ físicamente sin reconocimiento de quién los elabora
 
 ## Business goals
 
-**Incrementar la participación activa de la comunidad estudiantil mediante mecanismos de reputación y reconocimiento académico.**
+**Incrementar la reputación y reconocimiento académico a través de la participación activa de la comunidad estudiantil**
 
 ## Capabilities
 
-1. Publicación de apuntes (CRUD)
-2. Evaluación de apuntes  (Calificar, comentar)
+1. Publicación de apuntes 
+2. Retroalimentación de apuntes
 
 ## Features
 
