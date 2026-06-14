@@ -5,24 +5,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Notable{% endblock %}</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/global.css' %}">
-
-    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">🍆 Notable</div>
-        <div class="nav-links">
-            <span>Hola, {{ user.username }}</span>
-        </div>
-    </nav>
+    <div class="dasboard-principal">
 
-    <main class="contenedor-principal">
-        {% block content %}
-        {% endblock %}
-    </main>
+        <aside class="rectangle-parent">
+            <div class="perfil-seccion">
+                {% if user.perfil.foto_perfil %}
+                    <img class="foto-perfil-sidebar" src="{{ user.perfil.foto_perfil.url }}" alt="Foto">
+                {% else %}
+                    <img class="foto-perfil-sidebar" src="https://ui-avatars.com/api/?name={{ user.username }}&background=108b60&color=fff" alt="Avatar">
+                {% endif %}
+                <h2 class="nombre-usuario">{{ user.username }}</h2>
+            </div>
+
+            <div class="menu-botones">
+                <button class="boton-menu activo">⭐ Apuntes populares</button>
+                <button class="boton-menu">📖 Mis apuntes</button>
+                <button class="boton-menu">📚 Mi biblioteca</button>
+
+                <hr style="width: 100%; border: 0.5px solid #c8c8c8; margin: 20px 0;">
+
+                <button class="boton-menu">⚙️ Configuraciones</button>
+                <a href="/usuarios/login/" style="text-decoration: none;">
+                    <button class="boton-menu">🚪 Cerrar sesión</button>
+                </a>
+            </div>
+        </aside>
+
+        <main class="frame-container">
+            {% block content %}
+            {% endblock %}
+        </main>
+
+    </div>
 </body>
 </html>

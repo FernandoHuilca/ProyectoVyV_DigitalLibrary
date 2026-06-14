@@ -1,44 +1,38 @@
 {% extends 'base.html' %}
 
-{% block title %}Explorar Apuntes - Notable{% endblock %}
-
 {% block content %}
-    <div class="grid-apuntes">
+    <section class="cabecera-principal">
+        <h1>Apuntes populares</h1>
+        <h3>Explora los apuntes más vistos y mejor valorados por la comunidad.</h3>
+    </section>
+
+    <section class="contenedor-apuntes">
         {% for apunte in apuntes %}
-            <article class="tarjeta-apunte">
-                
-                <div class="portada-apunte">
-                    {% if apunte.portada %}
-                        <img src="{{ apunte.portada.url }}" alt="Portada de {{ apunte.titulo }}">
-                    {% else %}
-                        <div class="portada-placeholder">Sin Portada</div>
-                    {% endif %}
+            <div class="libro">
+                {% if apunte.portada %}
+                    <img class="portada-apunte" src="{{ apunte.portada.url }}" alt="Portada de {{ apunte.titulo }}">
+                {% else %}
+                    <div class="portada-apunte" style="background-color: var(--color-silver); display: flex; align-items: center; justify-content: center;">Sin Portada</div>
+                {% endif %}
+
+                <div class="titulo-apunte">{{ apunte.titulo }}</div>
+
+                <div class="autor-apunte">
+                    👤 <span class="nombre-autor">{{ apunte.autor.usuario.username }}</span>
                 </div>
 
-                <div class="info-apunte">
-                    <h3>{{ apunte.titulo }}</h3>
-                    <p>{{ apunte.descripcion|truncatechars:80 }}</p>
-
-                    <div class="autor-info">
-                        {% if apunte.autor.foto_perfil %}
-                            <img src="{{ apunte.autor.foto_perfil.url }}" alt="Foto de {{ apunte.autor.usuario.username }}" class="foto-perfil">
-                        {% else %}
-                            <img src="https://ui-avatars.com/api/?name={{ apunte.autor.usuario.username }}&background=random" alt="Avatar" class="foto-perfil">
-                        {% endif %}
-                        
-                        <div>
-                            <span class="nombre-autor">{{ apunte.autor.usuario.username }}</span>
-                            <span class="fecha-apunte">{{ apunte.fecha_creacion|date:"d M Y" }}</span>
-                        </div>
-                    </div>
-
-                    {% if apunte.contenido %}
-                        <a href="{{ apunte.contenido.url }}" target="_blank" class="btn-descarga">Ver Apunte PDF</a>
-                    {% endif %}
+                <div class="stats-apunte">
+                    <span>🤍 9</span>
+                    <span>380 vistas</span>
+                    <span>🔖</span>
                 </div>
-            </article>
+
+                {% if apunte.contenido %}
+                    <a href="{{ apunte.contenido.url }}" target="_blank" style="text-align: center; text-decoration: none; color: var(--color-seagreen); font-weight: bold; margin-top: 5px;">Abrir PDF</a>
+                {% endif %}
+            </div>
         {% empty %}
-            <h2>Aún no hay apuntes. ¡Sé el primero en aportar a tu facultad!</h2>
+            <p>No hay apuntes disponibles aún. ¡Sube el primero!</p>
         {% endfor %}
-    </div>
+    </section>
 {% endblock %}
