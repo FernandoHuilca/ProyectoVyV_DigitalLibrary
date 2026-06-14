@@ -9,7 +9,7 @@ class PerfilEstudiante(models.Model):
     # Atributos específicos para la plataforma de apuntes
     carrera = models.CharField(max_length=100, verbose_name="Carrera Universitaria")
     semestre_actual = models.IntegerField(default=1)
-    # puntos_reputacion = models.IntegerField(default=0, help_text="Puntos por subir apuntes de calidad")
+    foto_perfil = models.ImageField(upload_to='perfiles/avatares/', default='perfiles/default.png')
 
     def __str__(self):
         return f"Perfil de {self.usuario.username}"

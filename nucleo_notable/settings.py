@@ -11,10 +11,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -27,7 +27,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -38,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'modulo_publicaciones_apuntes',
+    'behave_django',  # <-- pa usar el behave pero del Django si no, no funca
+    'modulo_usuarios',
 ]
 
 MIDDLEWARE = [
@@ -55,7 +56,7 @@ ROOT_URLCONF = 'nucleo_notable.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],  # <-- Aquí le decimos a Django que busque plantillas también en la carpeta 'templates' que creamos en la raíz del proyecto
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -69,7 +70,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'nucleo_notable.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
@@ -79,7 +79,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -99,7 +98,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
@@ -111,13 +109,24 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+# Le decimos a Django dónde guardar el CSS global
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+# La ruta pública que verán los usuarios en el navegador (ej. tudominio.com/media/archivo.pdf)
+MEDIA_URL = '/media/'
+# La ruta física absoluta en el disco duro de tu computadora (o futuro servidor)
+# donde Django va a crear la carpeta y guardar los archivos reales.
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
 # A dónde redirigir al usuario si el login es exitoso (puedes cambiarlo a la ruta de tus apuntes luego)
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'lista_apuntes'
 
 # A dónde enviar al usuario si intenta acceder a una vista protegida sin iniciar sesión
-LOGIN_URL = '/login/'
+LOGIN_URL = 'usuarios/login/'
+

@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Notable{% endblock %}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">🍆 Notable</div>
+        <div class="nav-links">
+            <span>Hola, {{ user.username }}</span>
+        </div>
+    </nav>
+
+    <main class="contenedor-principal">
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
+</html>

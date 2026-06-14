@@ -1,7 +1,9 @@
 from django.urls import path
 from django.contrib.auth.views import LoginView
+from . import views
 
 urlpatterns = [
-    # Usamos la vista nativa LoginView y le indicamos la ruta de nuestra futura plantilla
-    path('login/', LoginView.as_view(template_name='publicaciones/login.html'), name='login'),
+    # Nuestra nueva ruta para ver los apuntes.
+    # Usamos la ruta raíz '' para que sea la página principal de la app.
+    path('', views.lista_apuntes, name='lista_apuntes'),
 ]

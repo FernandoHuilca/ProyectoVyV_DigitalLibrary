@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Explorar Apuntes - Notable{% endblock %}
+
+{% block content %}
+    <div class="grid-apuntes">
+        {% for apunte in apuntes %}
+            <article class="tarjeta-apunte">
+                
+                <div class="portada-apunte">
+                    {% if apunte.portada %}
+                        <img src="{{ apunte.portada.url }}" alt="Portada de {{ apunte.titulo }}">
+                    {% else %}
+                        <div class="portada-placeholder">Sin Portada</div>
+                    {% endif %}
+                </div>
+
+                <div class="info-apunte">
+                    <h3>{{ apunte.titulo }}</h3>
+                    <p>{{ apunte.descripcion|truncatechars:80 }}</p>
+
+                    <div class="autor-info">
+                        {% if apunte.autor.foto_perfil %}
+                            <img src="{{ apunte.autor.foto_perfil.url }}" alt="Foto de {{ apunte.autor.usuario.username }}" class="foto-perfil">
+                        {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ apunte.autor.usuario.username }}&background=random" alt="Avatar" class="foto-perfil">
+                        {% endif %}
+                        
+                        <div>
+                            <span class="nombre-autor">{{ apunte.autor.usuario.username }}</span>
+                            <span class="fecha-apunte">{{ apunte.fecha_creacion|date:"d M Y" }}</span>
+                        </div>
+                    </div>
+
+                    {% if apunte.contenido %}
+                        <a href="{{ apunte.contenido.url }}" target="_blank" class="btn-descarga">Ver Apunte PDF</a>
+                    {% endif %}
+                </div>
+            </article>
+        {% empty %}
+            <h2>Aún no hay apuntes. ¡Sé el primero en aportar a tu facultad!</h2>
+        {% endfor %}
+    </div>
+{% endblock %}

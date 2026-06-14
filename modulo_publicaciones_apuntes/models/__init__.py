@@ -1,1 +1,1 @@
-from .perfil_estudiante import PerfilEstudiante
+from .apunte import Apunte
