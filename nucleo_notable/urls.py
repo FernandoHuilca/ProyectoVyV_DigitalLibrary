@@ -11,7 +11,7 @@ urlpatterns = [
     path('usuarios/', include('modulo_usuarios.urls')),
 
     # 2. Dejamos el módulo de apuntes en la raíz limpia ('')
-    path('', include('modulo_publicaciones_apuntes.urls')),
+    path('', include(('modulo_publicaciones_apuntes.urls', 'publicaciones'), namespace='publicaciones')),
 ]
 
 if settings.DEBUG:

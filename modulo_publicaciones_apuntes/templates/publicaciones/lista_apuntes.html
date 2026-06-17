@@ -28,7 +28,7 @@
                 </div>
 
                 {% if apunte.contenido %}
-                    <a href="{{ apunte.contenido.url }}" target="_blank" style="text-align: center; text-decoration: none; color: var(--color-seagreen); font-weight: bold; margin-top: 5px;">Abrir PDF</a>
+                    <a href="{% url 'publicaciones:vista_apunte' apunte.pk %}" style="text-align: center; text-decoration: none; color: var(--color-seagreen); font-weight: bold; margin-top: 5px;">Ver apunte</a>
                 {% endif %}
             </div>
         {% empty %}

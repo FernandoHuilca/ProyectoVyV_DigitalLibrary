@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 
 from modulo_publicaciones_apuntes.models import Apunte
@@ -20,3 +20,14 @@ def lista_apuntes(request):
 
     # Le decimos a Django que renderice el archivo HTML pasándole el contexto
     return render(request, 'publicaciones/lista_apuntes.html', contexto)
+
+
+@login_required
+def vista_apunte(request, pk):
+    apunte = get_object_or_404(Apunte, pk=pk)
+
+    contexto = {
+        'apunte': apunte,
+    }
+
+    return render(request, 'publicaciones/vista_apunte.html', contexto)

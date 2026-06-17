@@ -113,6 +113,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+# Permite mostrar páginas y PDFs en iframes dentro del mismo origen.
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 # Le decimos a Django dónde guardar el CSS global
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
@@ -125,7 +127,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # A dónde redirigir al usuario si el login es exitoso (puedes cambiarlo a la ruta de tus apuntes luego)
-LOGIN_REDIRECT_URL = 'lista_apuntes'
+LOGIN_REDIRECT_URL = 'publicaciones:lista_apuntes'
 
 # A dónde enviar al usuario si intenta acceder a una vista protegida sin iniciar sesión
 LOGIN_URL = 'usuarios/login/'
