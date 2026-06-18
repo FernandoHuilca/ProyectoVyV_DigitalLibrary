@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'publicaciones/dashboard.css' %}">
+{% endblock %}
 
 {% block content %}
     <section class="cabecera-principal">
@@ -18,13 +23,28 @@
                 <div class="titulo-apunte">{{ apunte.titulo }}</div>
 
                 <div class="autor-apunte">
-                    👤 <span class="nombre-autor">{{ apunte.autor.usuario.username }}</span>
+                    {% if apunte.autor.usuario.perfil.foto_perfil %}
+                        <img
+                            src="{{ apunte.autor.usuario.perfil.foto_perfil.url }}"
+                            alt="Foto de perfil de {{ apunte.autor.usuario.username }}"
+                            class="foto-perfil">
+                    {% endif %}
+
+                    <span class="nombre-autor">
+                        {{ apunte.autor.usuario.username }}
+                    </span>
                 </div>
 
                 <div class="stats-apunte">
-                    <span>🤍 9</span>
+                    <span><svg width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M13.6608 1.8746C13.3203 1.53394 12.9161 1.2637 12.4711 1.07932C12.0261 0.894947 11.5492 0.800049 11.0675 0.800049C10.5859 0.800049 10.1089 0.894947 9.66395 1.07932C9.21897 1.2637 8.81469 1.53394 8.47418 1.8746L7.76752 2.58127L7.06085 1.8746C6.37305 1.1868 5.4402 0.800405 4.46752 0.800405C3.49483 0.800405 2.56198 1.1868 1.87418 1.8746C1.18639 2.56239 0.799988 3.49524 0.799988 4.46793C0.799988 5.44062 1.18639 6.37347 1.87418 7.06127L7.76752 12.9546L13.6608 7.06127C14.0015 6.72076 14.2718 6.31648 14.4561 5.8715C14.6405 5.42653 14.7354 4.94959 14.7354 4.46793C14.7354 3.98627 14.6405 3.50934 14.4561 3.06436C14.2718 2.61939 14.0015 2.2151 13.6608 1.8746Z" stroke="#757575" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+ 9</span>
                     <span>380 vistas</span>
-                    <span>🔖</span>
+                    <span><svg width="19" height="20" viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M15.0416 17.5L9.49998 13.3333L3.95831 17.5V4.16667C3.95831 3.72464 4.12513 3.30072 4.42206 2.98816C4.71899 2.67559 5.12172 2.5 5.54165 2.5H13.4583C13.8782 2.5 14.281 2.67559 14.5779 2.98816C14.8748 3.30072 15.0416 3.72464 15.0416 4.16667V17.5Z" stroke="#757575" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</span>
                 </div>
 
                 {% if apunte.contenido %}

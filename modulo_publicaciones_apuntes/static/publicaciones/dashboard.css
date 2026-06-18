@@ -1,0 +1,18 @@
+
+.autor-apunte {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.foto-perfil {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e5e7eb;
+}
+
+.nombre-autor {
+    font-weight: 500;
+}
