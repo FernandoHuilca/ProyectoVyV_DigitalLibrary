@@ -13,22 +13,25 @@
     <div class="dasboard-principal">
 
         <aside class="rectangle-parent">
-            <div class="perfil-seccion">
-                {% if user.perfil.foto_perfil %}
-                    <img class="foto-perfil-sidebar" src="{{ user.perfil.foto_perfil.url }}" alt="Foto">
-                {% else %}
-                    <img class="foto-perfil-sidebar" src="https://ui-avatars.com/api/?name={{ user.username }}&background=108b60&color=fff" alt="Avatar">
-                {% endif %}
-                <h2 class="nombre-usuario">{{ user.username }}</h2>
-            </div>
-
+            <a href="{% url 'modulo_usuarios:perfil_usuario' %}" style="text-decoration: none; display: flex; flex-direction: column; align-items: center;">
+                <div class="perfil-seccion">
+                    {% if user.perfil.foto_perfil %}
+                        <img class="foto-perfil-sidebar" src="{{ user.perfil.foto_perfil.url }}" alt="Foto">
+                    {% else %}
+                        <img class="foto-perfil-sidebar" src="https://ui-avatars.com/api/?name={{ user.username }}&background=108b60&color=fff" alt="Avatar">
+                    {% endif %}
+                    <h2 class="nombre-usuario">{{ user.username }}</h2>
+                </div>
+            </a>
             <div class="menu-botones">
-                <button class="boton-menu activo">
+                <a href="{% url 'publicaciones:lista_apuntes' %}" class="nav-item active" style="text-decoration: none;">
+                    <button class="boton-menu activo">
                     <svg width="32" height="30" viewBox="0 0 32 30" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M15.5834 1L20.0896 10.1292L30.1667 11.6021L22.875 18.7042L24.5959 28.7375L15.5834 23.9979L6.57086 28.7375L8.2917 18.7042L1.00003 11.6021L11.0771 10.1292L15.5834 1Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 
                     Apuntes populares</button>
+                </a>
                 <button class="boton-menu">
                     <svg width="32" height="28" viewBox="0 0 32 28" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M16 8.16667C16 6.92899 15.4381 5.742 14.4379 4.86683C13.4377 3.99167 12.0812 3.5 10.6667 3.5H2.66667V21H12C13.0609 21 14.0783 21.3687 14.8284 22.0251C15.5786 22.6815 16 23.5717 16 24.5M16 8.16667V24.5M16 8.16667C16 6.92899 16.5619 5.742 17.5621 4.86683C18.5623 3.99167 19.9188 3.5 21.3333 3.5H29.3333V21H20C18.9391 21 17.9217 21.3687 17.1716 22.0251C16.4214 22.6815 16 23.5717 16 24.5" stroke="#1E1E1E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Editar Perfil | Notable{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'perfil_edicion.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+
+<div class="edicion-wrapper">
+    <div class="edicion-header">
+        <h1><i class="fas fa-user-edit"></i> Editar Perfil</h1>
+        <p class="edicion-subtitle">Actualiza tu información personal para que otros estudiantes te conozcan mejor</p>
+    </div>
+
+    <div class="edicion-grid">
+        <!-- ====== FORMULARIO PRINCIPAL ====== -->
+        <div class="edicion-form-container">
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">
+                            <i class="fas fa-{% if field.name == 'carrera' %}graduation-cap{% elif field.name == 'semestre_actual' %}calendar-alt{% elif field.name == 'foto_perfil' %}camera{% elif field.name == 'ira' %}chart-bar{% elif field.name == 'email_contacto' %}envelope{% elif field.name == 'temas_interes' %}tags{% elif field.name == 'descripcion' %}align-left{% else %}pencil-alt{% endif %}"></i>
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <div class="help-text">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <p class="error-text"><i class="fas fa-exclamation-circle"></i> {{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-guardar">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                    <a href="{% url 'modulo_usuarios:perfil_usuario' %}" class="btn-cancelar">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- ====== SIDEBAR DE INFORMACIÓN ====== -->
+        <div class="edicion-sidebar">
+
+            <div class="info-card">
+                <h3><i class="fas fa-user-check"></i> Tu Perfil</h3>
+                <div class="profile-summary">
+                    <div class="profile-summary-item">
+                        <span class="label">Usuario</span>
+                        <span class="value">@{{ user.username }}</span>
+                    </div>
+                    <div class="profile-summary-item">
+                        <span class="label">Apuntes</span>
+                        <span class="value">{{ total_apuntes|default:0 }}</span>
+                    </div>
+                    <div class="profile-summary-item">
+                        <span class="label">Miembro desde</span>
+                        <span class="value">{{ user.date_joined|date:"F Y" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

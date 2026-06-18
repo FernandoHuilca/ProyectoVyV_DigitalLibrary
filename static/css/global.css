@@ -7,6 +7,12 @@
   --color-seagreen: #108b60; /* Tu verde principal */
   --color-silver: #c8c8c8;
   --color-gray-100: #888;
+  --color-light-blue: #84c9ff;
+  --color-yellow: #f59e0b;
+  --color-cyan: #06b6d4;
+  --color-pink: #f43f5e;
+  --color-cover: #e6ceb1;
+  --color-teal: #0d9488;
 
   --font-poppins: 'Poppins', sans-serif;
   --font-inter: 'Inter', sans-serif;
@@ -14,6 +20,8 @@
   --br-8: 8px;
   --br-20: 20px;
   --shadow-drop: 0px 4px 4px rgba(0, 0, 0, 0.1);
+
+  --borde: 1px solid var(--color-silver);
 }
 
 body {

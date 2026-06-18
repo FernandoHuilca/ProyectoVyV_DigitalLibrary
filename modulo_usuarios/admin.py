@@ -15,6 +15,24 @@ class UserAdmin(BaseUserAdmin):
     # Le agregamos nuestro Inline del perfil
     inlines = (PerfilEstudianteInline,)
 
+@admin.register(PerfilEstudiante)
+class PerfilEstudianteAdmin(admin.ModelAdmin):
+    list_display = ('usuario', 'carrera', 'semestre_actual')
+    search_fields = ('usuario__username', 'usuario__email', 'carrera')
+    list_filter = ('carrera', 'semestre_actual')
+    raw_id_fields = ('usuario',)  # Mejor que un dropdown para muchos usuarios
+    fields = (
+        'usuario',
+        'carrera',
+        'semestre_actual',
+        'foto_perfil',
+        'descripcion',
+        'bio',
+        'temas_interes',
+        'ira',
+        'email_contacto',
+    )
+
 # 3. Des-registramos el modelo de Usuario que viene por defecto
 admin.site.unregister(User)
 

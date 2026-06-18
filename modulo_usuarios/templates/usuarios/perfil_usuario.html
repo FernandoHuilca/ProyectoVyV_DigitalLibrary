@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Perfil de {{ perfil_estudiante.usuario.username }} | Notable{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'perfil_usuario.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+
+    <!-- ========================================== -->
+    <!-- MAIN CONTENT                               -->
+    <!-- ========================================== -->
+    <div class="main-content">
+
+        <!-- ========== HEADER CARD ========== -->
+        <header class="header-card">
+            <div class="user-info-header">
+                <div class="profile-pic-small">
+                    {% if perfil_estudiante.foto_perfil %}
+                        <img src="{{ perfil_estudiante.foto_perfil.url }}" alt="Avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">
+                    {% else %}
+                        <i class="fa-solid fa-user"></i>
+                    {% endif %}
+                </div>
+                <div class="user-details">
+                    <h1>{{ perfil_estudiante.usuario.get_full_name|default:perfil_estudiante.usuario.username }}</h1>
+                    <p>@{{ perfil_estudiante.usuario.username }} · {{ perfil_estudiante.carrera|default:"Estudiante" }}</p>
+                    {% if perfil_estudiante.usuario == request.user %}
+                        <a href="{% url 'modulo_usuarios:editar_perfil' perfil_estudiante.pk %}" class="btn-edit">
+                            <i class="fa-solid fa-pen-to-square"></i> Editar perfil
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="prestige-badge">
+                <div class="prestige-text">
+                    <span class="small-text">PRESTIGIO</span>
+                    <span class="points">{{ perfil_estudiante.puntos_prestigio|default:500 }} pts</span>
+                    <span class="rank">{{ perfil_estudiante.rango|default:"MAESTRO" }}</span>
+                </div>
+                <i class="fa-solid fa-atom"></i>
+            </div>
+        </header>
+
+        <!-- ========================================== -->
+        <!-- CONTENT GRID                               -->
+        <!-- ========================================== -->
+        <div class="content-grid">
+
+            <!-- ========== COLUMNA IZQUIERDA ========== -->
+            <div class="left-column">
+
+                <!-- ESTADÍSTICAS -->
+                <section class="stats-section">
+                    <h3 class="section-title"><i class="fa-solid fa-chart-simple"></i> Estadísticas</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i> {{ total_apuntes|default:0 }}
+                            <span>Apuntes subidos</span>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fa-solid fa-eye"></i> {{ total_vistas|default:"12.4K" }}
+                            <span>Vistas totales</span>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fa-solid fa-user-group"></i> {{ total_seguidores|default:320 }}
+                            <span>Seguidores</span>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fa-regular fa-heart"></i> {{ total_me_gustas|default:"1.8K" }}
+                            <span>Me gustas</span>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fa-solid fa-download"></i> {{ total_descargas|default:"5.2K" }}
+                            <span>Descargas</span>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fa-regular fa-comment"></i> {{ total_comentarios|default:892 }}
+                            <span>Comentarios</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MIS APUNTES -->
+                <section class="notes-section">
+                    <div class="notes-header">
+                        <h3 class="section-title"><i class="fa-solid fa-book-open"></i> Mis apuntes ({{ total_apuntes|default:0 }})</h3>
+                        <button class="btn-new">Crear nuevo apunte</button>
+                    </div>
+                    <div class="notes-grid">
+                        {% for apunte in apuntes %}
+                            <div class="note-card">
+                                <div class="note-cover" style="background-image: url('{% if apunte.portada %}{{ apunte.portada.url }}{% else %}https://via.placeholder.com/200x160/d4c3a3/333?text={{ apunte.titulo|urlencode }}{% endif %}'); background-size: cover; background-position: center; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
+                                    {{ apunte.titulo }}
+                                </div>
+                                <div class="note-actions">
+                                    <a href="{% url 'publicaciones:vista_apunte' apunte.pk %}" class="btn-ver">Ver</a>
+                                    {% if perfil_estudiante.usuario == request.user %}
+                                        <a href="#" class="btn-editar">Editar</a>
+                                        <a href="#" class="btn-eliminar">Eliminar</a>
+                                    {% endif %}
+                                </div>
+                                <div class="note-footer">
+                                    <span><i class="fa-regular fa-heart"></i> {{ apunte.me_gusta_count|default:0 }}</span>
+                                    <span>{{ apunte.vistas_count|default:0 }} vistas</span>
+                                    <i class="fa-regular fa-bookmark"></i>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="note-card" style="grid-column: 1 / -1; text-align: center; padding: 30px 20px;">
+                                <p style="color: #999;">📝 No has subido ningún apunte aún.</p>
+                                <button class="btn-new" style="margin-top: 10px;">Crear mi primer apunte</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ========== COLUMNA DERECHA ========== -->
+            <div class="right-column">
+
+                <!-- DESCRIPCIÓN -->
+                <div class="info-card">
+                    <h4 class="card-title"><i class="fa-regular fa-file-lines"></i> Descripción</h4>
+                    <p class="desc-text">{{ perfil_estudiante.descripcion|default:"Estudiante apasionado por compartir conocimiento. Subo apuntes detallados de mis materias, con resúmenes visuales y mapas conceptuales. Mi objetivo es hacer el aprendizaje más accesible para todos." }}</p>
+                    <span class="member-since"><i class="fa-regular fa-clock"></i> Miembro desde {{ perfil_estudiante.usuario.date_joined|date:"F Y" }}</span>
+                </div>
+
+                <!-- INFORMACIÓN -->
+                <div class="info-card">
+                    <h4 class="card-title"><i class="fa-regular fa-message"></i> Información</h4>
+                    <ul class="info-list">
+                        <li>
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            <div>
+                                <span class="label">Carrera</span>
+                                <span class="value">{{ perfil_estudiante.carrera|default:"No especificada" }}</span>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fa-regular fa-envelope"></i>
+                            <div>
+                                <span class="label">Contacto</span>
+                                <span class="value">{{ perfil_estudiante.email_contacto|default:perfil_estudiante.usuario.email }}</span>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fa-regular fa-calendar"></i>
+                            <div>
+                                <span class="label">Semestre</span>
+                                <span class="value">{{ perfil_estudiante.semestre_actual|default:"No especificado" }}</span>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-chart-bar"></i>
+                            <div>
+                                <span class="label">I.R.A.</span>
+                                <span class="value">{{ perfil_estudiante.ira|default:"No disponible" }}</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- TEMAS DE INTERÉS -->
+                <div class="info-card">
+                    <h4 class="card-title"><i class="fa-solid fa-tag"></i> Temas de interés</h4>
+                    <div class="tags-container">
+                        {% if perfil_estudiante.temas_interes %}
+                            {% for tag in perfil_estudiante.temas_interes.split %}
+                                <span class="tag">{{ tag }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="tag">Historia</span>
+                            <span class="tag">Literatura</span>
+                            <span class="tag">Filosofía</span>
+                            <span class="tag">Ciencias Políticas</span>
+                            <span class="tag">Economía</span>
+                            <span class="tag">Sociología</span>
+                            <span class="tag">Arte</span>
+                            <span class="tag">Psicología</span>
+                            <span class="tag">Lingüística</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}

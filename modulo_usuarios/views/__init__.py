@@ -1,0 +1,1 @@
+from .perfil_usuario_views import PerfilDetailView, PerfilUpdateView
