@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'modulo_publicaciones_apuntes',
     'behave_django',  # <-- pa usar el behave pero del Django si no, no funca
     'modulo_usuarios',
+    'modulo_mis_apuntes',
 ]
 
 MIDDLEWARE = [

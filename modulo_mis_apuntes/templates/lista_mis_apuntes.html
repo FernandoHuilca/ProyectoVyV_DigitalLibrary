@@ -2,18 +2,19 @@
 {% load static %}
 
 {% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/mis_apuntes_card.css' %}">
     <link rel="stylesheet" href="{% static 'css/apunte_card.css' %}">
 {% endblock %}
 
 {% block content %}
     <section class="cabecera-principal">
-        <h1>Apuntes populares</h1>
-        <h3>Explora los apuntes más vistos y mejor valorados por la comunidad.</h3>
+        <h1>Mis apuntes</h1>
+        <h3>Gestiona el material que has compartido con la comunidad.</h3>
     </section>
 
-<section class="contenedor-apuntes">
+    <section class="contenedor-apuntes">
         {% for apunte in apuntes %}
-            {% include 'partials/apunte_card.html' with apunte=apunte es_propio=False %}
+            {% include 'partials/apunte_card.html' with apunte=apunte es_propio=True %}
         {% empty %}
             <p>Aún no tienes apuntes publicados. ¡Sube el primero!</p>
         {% endfor %}

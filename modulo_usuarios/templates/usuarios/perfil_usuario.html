@@ -92,43 +92,6 @@
                     </div>
                 </div>
             </section>
-
-            <!-- MIS APUNTES -->
-            <!--
-            <section class="notes-section">
-                <div class="notes-header">
-                    <h3 class="section-title"><i class="fa-solid fa-book-open"></i> Mis apuntes ({{ total_apuntes|default:0 }})</h3>
-                    <button class="btn-new">Crear nuevo apunte</button>
-                </div>
-                <div class="notes-grid">
-                    {% for apunte in apuntes %}
-                        <div class="note-card">
-                            <div class="note-cover" style="background-image: url('{% if apunte.portada %}{{ apunte.portada.url }}{% else %}https://via.placeholder.com/200x160/d4c3a3/333?text={{ apunte.titulo|urlencode }}{% endif %}'); background-size: cover; background-position: center; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
-                                {{ apunte.titulo }}
-                            </div>
-                            <div class="note-actions">
-                                <a href="{% url 'publicaciones:vista_apunte' apunte.pk %}" class="btn-ver">Ver</a>
-                                {% if perfil_estudiante.usuario == request.user %}
-                                    <a href="#" class="btn-editar">Editar</a>
-                                    <a href="#" class="btn-eliminar">Eliminar</a>
-                                {% endif %}
-                            </div>
-                            <div class="note-footer">
-                                <span><i class="fa-regular fa-heart"></i> {{ apunte.me_gusta_count|default:0 }}</span>
-                                <span>{{ apunte.vistas_count|default:0 }} vistas</span>
-                                <i class="fa-regular fa-bookmark"></i>
-                            </div>
-                        </div>
-                    {% empty %}
-                        <div class="note-card" style="grid-column: 1 / -1; text-align: center; padding: 30px 20px;">
-                            <p style="color: #999;">📝 No has subido ningún apunte aún.</p>
-                            <button class="btn-new" style="margin-top: 10px;">Crear mi primer apunte</button>
-                        </div>
-                    {% endfor %}
-                </div>
-            </section>
-            -->
-
         </div>
 
         <!-- ========== COLUMNA DERECHA ========== -->
@@ -191,10 +154,7 @@
                     {% endif %}
                 </div>
             </div>
-
         </div>
-
-
     </div>
 </div>
 

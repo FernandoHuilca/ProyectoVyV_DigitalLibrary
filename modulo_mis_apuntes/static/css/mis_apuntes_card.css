@@ -1,0 +1,28 @@
+/* Acciones de apunte propio — solo visibles en "Mis apuntes" */
+.acciones-apunte {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.btn-accion {
+    flex: 1;
+    padding: 6px 0;
+    border-radius: var(--br-8);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-editar {
+    background-color: var(--color-seagreen);
+    color: var(--color-white);
+}
+
+.btn-eliminar {
+    background-color: var(--color-pink);
+    color: var(--color-white);
+}
