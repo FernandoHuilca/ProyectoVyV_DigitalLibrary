@@ -26,3 +26,301 @@
     background-color: var(--color-pink);
     color: var(--color-white);
 }
+
+/* ── Layout de la página "Mis apuntes" ───────────────────────────────────── */
+.mis-apuntes-layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 30px;
+    padding: 0 60px 60px 60px;
+    align-items: start;
+    height: calc(100vh - 220px);
+}
+
+/* ── Panel del formulario ────────────────────────────────────────────────── */
+.panel-formulario {
+    background-color: var(--color-white);
+    border-radius: var(--br-20);
+    box-shadow: var(--shadow-drop);
+    padding: 30px;
+    position: sticky;
+    top: 20px;           /* Se queda visible al hacer scroll en la lista */
+    height: fit-content;  /* Se ajusta a su contenido */
+    max-height: calc(100vh - 260px);  /* Altura máxima */
+    overflow-y: auto;  /* Scroll en el formulario si es muy largo */
+}
+
+.panel-titulo {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+}
+
+.panel-subtitulo {
+    font-size: 0.9rem;
+    color: var(--color-gray-100);
+    margin: 0 0 20px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Campos del formulario ───────────────────────────────────────────────── */
+.campo-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 16px;
+}
+
+.campo-grupo label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-seagreen);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.campo-texto,
+.campo-texto-area {
+    width: 100%;
+    padding: 10px 12px;
+    border: var(--borde);
+    border-radius: var(--br-8);
+    font-family: var(--font-inter);
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.campo-texto:focus,
+.campo-texto-area:focus {
+    outline: none;
+    border-color: var(--color-seagreen);
+}
+
+.campo-archivo {
+    font-size: 0.9rem;
+}
+
+.campo-error {
+    font-size: 0.8rem;
+    color: var(--color-pink);
+}
+
+.form-errores {
+    background-color: #fff0f3;
+    border: 1px solid var(--color-pink);
+    border-radius: var(--br-8);
+    padding: 10px;
+    font-size: 0.85rem;
+    color: var(--color-pink);
+    margin-bottom: 16px;
+}
+
+/* ── Botones del formulario ──────────────────────────────────────────────── */
+.panel-acciones {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.btn-crear,
+.btn-guardar {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: var(--br-20);
+    background-color: var(--color-seagreen);
+    color: var(--color-white);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-crear:hover,
+.btn-guardar:hover {
+    opacity: 0.88;
+}
+
+.btn-cancelar {
+    flex: 1;
+    padding: 12px;
+    border-radius: var(--br-20);
+    border: var(--borde);
+    background-color: transparent;
+    color: var(--color-gray-100);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.btn-cancelar:hover {
+    background-color: var(--color-whitesmoke);
+}
+
+/* ── Mensajes de sistema ─────────────────────────────────────────────────── */
+.mensajes-sistema {
+    padding: 0 60px;
+    margin-bottom: -20px;
+}
+
+.mensaje-sistema {
+    padding: 12px 16px;
+    border-radius: var(--br-8);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.mensaje-success {
+    background-color: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.mensaje-error {
+    background-color: #fff0f3;
+    color: #9f1239;
+    border: 1px solid #fecdd3;
+}
+
+/* ── Lista vacía ─────────────────────────────────────────────────────────── */
+.lista-vacia {
+    color: var(--color-gray-100);
+    font-size: 0.95rem;
+    grid-column: 1 / -1;
+    padding: 40px;
+    text-align: center;
+}
+
+@media (max-width: 1000px) {
+    .mis-apuntes-layout {
+        grid-template-columns: 1fr;
+        padding: 0 20px 40px 20px;
+        height: auto;
+    }
+
+    .panel-formulario {
+        position: static;
+    }
+
+    .contenedor-apuntes {  /* ← NUEVO BLOQUE */
+        max-height: 60vh;
+    }
+}
+
+/* ── Archivos actuales en el formulario ─────────────────────────────────── */
+.archivo-actual {
+    background-color: var(--color-whitesmoke);
+    border-radius: var(--br-8);
+    padding: 10px 12px;
+    margin-top: 8px;
+    border: 1px dashed var(--color-silver);
+    word-wrap: break-word;        /* ← Permite que el texto largo se rompa */
+    overflow-wrap: break-word;    /* ← Estándar moderno */
+    max-width: 100%;              /* ← No se sale del contenedor */
+}
+
+.archivo-actual p {
+    margin: 0;
+    font-size: 0.85rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.archivo-actual img {
+    display: block;
+    margin-top: 6px;
+    border: 1px solid var(--color-silver);
+    max-width: 100%;              /* ← Imagen responsive */
+    height: auto;
+}
+
+.btn-pdf-actual {
+    display: inline-block;
+    padding: 4px 10px;
+    background-color: var(--color-white);
+    border-radius: var(--br-8);
+    color: var(--color-seagreen);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.85rem;
+    border: 1px solid var(--color-seagreen);
+    margin-top: 4px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+.btn-pdf-actual:hover {
+    background-color: var(--color-seagreen);
+    color: var(--color-white);
+}
+
+/* ── Enlaces de PDF en el formulario ───────────────────────────────────── */
+.archivo-actual .pdf-nombre {
+    display: inline-block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;      /* ← Agrega "..." al final si es muy largo */
+    vertical-align: middle;
+}
+
+/* ── Alternativa: Mostrar solo el nombre del archivo sin ruta ──────────── */
+.archivo-actual .pdf-nombre-simple {
+    font-size: 0.85rem;
+    color: var(--color-seagreen);
+    font-weight: 500;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* ── Contenedor de apuntes CON SCROLL ────────────────────────────────────── */
+.contenedor-apuntes {
+    max-height: calc(100vh - 300px);  /* Altura ajustable */
+    overflow-y: auto;
+    padding-right: 10px;
+    scroll-behavior: smooth;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));  /* ← Tarjetas más pequeñas */
+    gap: 16px;
+    align-content: start;
+}
+
+/* ── ESTILOS DEL SCROLLBAR (Chrome/Safari/Edge) ────────────────────────── */
+.contenedor-apuntes::-webkit-scrollbar {
+    width: 1000px;
+}
+
+.contenedor-apuntes::-webkit-scrollbar-track {
+    background: var(--color-whitesmoke);
+    border-radius: 6px;
+    border: 1px solid var(--color-silver);
+
+}
+
+.contenedor-apuntes::-webkit-scrollbar-thumb {
+    background: var(--color-seagreen);  /* ← Verde para que resalte */
+    border-radius: 6px;
+    border: 2px solid var(--color-white);
+}
+
+.contenedor-apuntes::-webkit-scrollbar-thumb:hover {
+    background: var(--color-black);
+}
+
+/* ── ESTILOS DEL SCROLLBAR (Firefox) ───────────────────────────────────── */
+.contenedor-apuntes {
+    scrollbar-width: auto;
+    scrollbar-color: var(--color-silver) var(--color-whitesmoke);
+}
+
+@media (max-width: 600px) {
+    .contenedor-apuntes {
+        max-height: 50vh;
+    }
+}

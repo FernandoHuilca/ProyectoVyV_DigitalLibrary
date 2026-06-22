@@ -2,21 +2,122 @@
 {% load static %}
 
 {% block extra_head %}
-    <link rel="stylesheet" href="{% static 'css/mis_apuntes_card.css' %}">
-    <link rel="stylesheet" href="{% static 'css/apunte_card.css' %}">
+<link rel="stylesheet" href="{% static 'css/mis_apuntes_card.css' %}">
+<link rel="stylesheet" href="{% static 'css/apunte_card.css' %}">
+<link rel="stylesheet" href="{% static 'css/modal.css' %}">
 {% endblock %}
 
 {% block content %}
-    <section class="cabecera-principal">
-        <h1>Mis apuntes</h1>
-        <h3>Gestiona el material que has compartido con la comunidad.</h3>
-    </section>
 
+{# ── Mensajes de feedback (éxito / error) ────────────────────────────────── #}
+{% if messages %}
+<div class="mensajes-sistema">
+    {% for message in messages %}
+    <p class="mensaje-sistema mensaje-{{ message.tags }}">{{ message }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+
+{# ── Cabecera ─────────────────────────────────────────────────────────────── #}
+<section class="cabecera-principal">
+    <h1>Mis apuntes</h1>
+    <h3>Gestiona el material que has compartido con la comunidad.</h3>
+</section>
+
+<div class="mis-apuntes-layout">
+
+    {# ── Panel de formulario: CREATE o UPDATE según contexto ─────────────── #}
+    <aside class="panel-formulario">
+
+        <h2 class="panel-titulo">
+            {% if apunte_editando %}
+            Editando apunte
+            {% else %}
+            Nuevo apunte
+            {% endif %}
+        </h2>
+
+        {% if apunte_editando %}
+        <p class="panel-subtitulo">{{ apunte_editando.titulo }}</p>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            {# Campo oculto: presencia = UPDATE, ausencia = CREATE #}
+            {% if apunte_editando %}
+            <input type="hidden" name="apunte_id" value="{{ apunte_editando.pk }}">
+            {% endif %}
+
+            {# Errores generales del formulario #}
+            {% if form.non_field_errors %}
+            <div class="form-errores">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {# Campos del formulario con sus errores inline #}
+            {% for field in form %}
+            <div class="campo-grupo">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+
+                {% if field.name == "portada" and apunte_editando and apunte_editando.portada %}
+                <div class="archivo-actual">
+                    <p style="font-size: 0.8rem; color: var(--color-gray-100); margin: 8px 0 4px 0;">Portada actual:</p>
+                    <img src="{{ apunte_editando.portada.url }}" alt="Portada actual"
+                         style="max-width: 150px; max-height: 120px; border-radius: 8px; border: 1px solid var(--color-silver);">
+                    <p style="font-size: 0.7rem; color: var(--color-gray-100); margin: 4px 0 0 0;">Sube una nueva para
+                        reemplazarla.</p>
+                </div>
+                {% endif %}
+
+                {# MOSTRAR ARCHIVO ACTUAL PARA CONTENIDO #}
+                {% if field.name == "contenido" and apunte_editando and apunte_editando.contenido %}
+                <div class="archivo-actual">
+                    <p style="font-size: 0.8rem; color: var(--color-gray-100); margin: 8px 0 4px 0;">PDF actual:</p>
+                    <a href="{{ apunte_editando.contenido.url }}" target="_blank"
+                       style="color: var(--color-seagreen); text-decoration: none; font-weight: 500;">
+                        📄 {{ apunte_editando.contenido.name }}
+                    </a>
+                    <p style="font-size: 0.7rem; color: var(--color-gray-100); margin: 4px 0 0 0;">Sube un nuevo PDF
+                        para reemplazarlo.</p>
+                </div>
+                {% endif %}
+
+                {% if field.errors %}
+                <span class="campo-error">{{ field.errors|join:", " }}</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="panel-acciones">
+                {% if apunte_editando %}
+                <button type="submit" class="btn-guardar">
+                    Guardar cambios
+                </button>
+                <a href="{% url 'modulo_mis_apuntes:lista_mis_apuntes' %}"
+                   class="btn-cancelar">
+                    Cancelar
+                </a>
+                {% else %}
+                <button type="submit" class="btn-crear">
+                    Publicar apunte
+                </button>
+                {% endif %}
+            </div>
+
+        </form>
+    </aside>
+
+    {# ── Lista de apuntes propios ─────────────────────────────────────────── #}
     <section class="contenedor-apuntes">
         {% for apunte in apuntes %}
-            {% include 'partials/apunte_card.html' with apunte=apunte es_propio=True %}
+        {% include 'partials/apunte_card.html' with apunte=apunte es_propio=True %}
         {% empty %}
-            <p>Aún no tienes apuntes publicados. ¡Sube el primero!</p>
+        <p class="lista-vacia">
+            Aún no tienes apuntes publicados. ¡Usa el panel de la izquierda para crear el primero!
+        </p>
         {% endfor %}
     </section>
+
+</div>
 {% endblock %}

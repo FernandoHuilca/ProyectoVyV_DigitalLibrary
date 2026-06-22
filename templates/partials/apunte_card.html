@@ -53,10 +53,20 @@
     {# ── Botones de gestión: solo visibles en "Mis apuntes" ──────────────── #}
     {% if es_propio %}
     <div class="acciones-apunte">
-        {# TODO: Conectar con la vista editar_apunte cuando esté implementada #}
-        <a href="#" class="btn-accion btn-editar">Editar</a>
-        {# TODO: Conectar con la vista eliminar_apunte cuando esté implementada #}
-        <a href="#" class="btn-accion btn-eliminar">Eliminar</a>
+        <a href="{% url 'modulo_mis_apuntes:lista_mis_apuntes' %}?editar={{ apunte.pk }}" class="btn-accion btn-editar">Editar</a>
+        <a href="#"
+           class="btn-accion btn-eliminar"
+           onclick="mostrarModalConfirmacion({
+       titulo: 'Eliminar apunte',
+       mensaje: '¿Estás seguro de que quieres eliminar?',
+       textoConfirmar: 'Eliminar',
+       tipo: 'peligro',
+       onConfirm: function() {
+           window.location.href = '{% url 'modulo_mis_apuntes:eliminar_apunte' apunte.pk %}';
+       }
+   }); return false;">
+            Eliminar
+        </a>
     </div>
     {% endif %}
 </div>

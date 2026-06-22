@@ -1,0 +1,181 @@
+/* ============================================================
+   MODAL GLOBAL REUTILIZABLE
+   ============================================================ */
+
+.modal-global {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.modal-card {
+    position: relative;
+    background: #fff;
+    border-radius: 16px;
+    max-width: 440px;
+    width: 90%;
+    padding: 0;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    animation: modalEntrada 0.25s ease;
+}
+
+@keyframes modalEntrada {
+    from {
+        opacity: 0;
+        transform: scale(0.92) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px 0 24px;
+}
+
+.modal-header h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+    color: #1e1e1e;
+}
+
+.modal-btn-cerrar {
+    background: none;
+    border: none;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+    color: #999;
+    padding: 0 4px;
+    transition: color 0.2s;
+}
+
+.modal-btn-cerrar:hover {
+    color: #333;
+}
+
+.modal-body {
+    padding: 16px 24px 8px 24px;
+}
+
+.modal-body p {
+    margin: 0;
+    font-size: 1rem;
+    color: #333;
+    line-height: 1.5;
+}
+
+.modal-footer {
+    padding: 16px 24px 24px 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+/* Botones del modal */
+.btn-modal-primario,
+.btn-modal-secundario,
+.btn-modal-peligro {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-modal-secundario {
+    background: #f1f3f5;
+    color: #444;
+}
+
+.btn-modal-secundario:hover {
+    background: #e5e8eb;
+}
+
+.btn-modal-primario {
+    background: #108b60;
+    color: #fff;
+}
+
+.btn-modal-primario:hover {
+    background: #0d734f;
+    box-shadow: 0 4px 12px rgba(16, 139, 96, 0.3);
+}
+
+.btn-modal-peligro {
+    background: #f43f5e;
+    color: #fff;
+}
+
+.btn-modal-peligro:hover {
+    background: #d9364e;
+    box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3);
+}
+
+/* ====== TIPOS DE MODAL ====== */
+.modal-exito .modal-header h3 {
+    color: #108b60;
+}
+
+.modal-exito .btn-modal-primario {
+    background: #108b60;
+}
+
+.modal-error .modal-header h3 {
+    color: #f43f5e;
+}
+
+.modal-error .btn-modal-primario {
+    background: #f43f5e;
+}
+
+.modal-info .modal-header h3 {
+    color: #06b6d4;
+}
+
+.modal-info .btn-modal-primario {
+    background: #06b6d4;
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 480px) {
+    .modal-card {
+        width: 95%;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+    }
+
+    .btn-modal-primario,
+    .btn-modal-secundario,
+    .btn-modal-peligro {
+        width: 100%;
+        text-align: center;
+        padding: 12px;
+    }
+}
