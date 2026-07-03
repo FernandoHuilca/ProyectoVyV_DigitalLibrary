@@ -1,0 +1,152 @@
+/* ==========================================================================
+   ESTILOS EXCLUSIVOS DEL COMPONENTE: RANKING USUARIOS (modulo_usuarios)
+   ========================================================================== */
+
+.ranking-sidebar {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.ranking-title {
+    font-size: 1.15rem;
+    color: #1e293b;
+    margin-bottom: 15px;
+    font-weight: 700;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 10px;
+}
+
+.ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.ranking-item:hover {
+    background-color: #f8fafc;
+}
+
+/* Resaltado de los 3 primeros puestos */
+.position-1 { background-color: #fef3c7; }
+.position-2 { background-color: #f1f5f9; }
+.position-3 { background-color: #ffedd5; }
+
+.ranking-position {
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #64748b;
+    width: 20px;
+    text-align: center;
+}
+
+.position-1 .ranking-position { color: #d97706; }
+.position-2 .ranking-position { color: #475569; }
+.position-3 .ranking-position { color: #ea580c; }
+
+/* Avatar */
+.ranking-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e2e8f0;
+}
+
+/* Información del estudiante */
+.ranking-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.ranking-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+/* Badges de Rangos Académicos  */
+.ranking-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    width: fit-content;
+    margin-top: 2px;
+    text-transform: uppercase;
+}
+.badge-prepo { background-color: #e2e8f0; color: #475569; }
+.badge-tecnólogo { background-color: #dbeafe; color: #1e40af; }
+.badge-ingeniero { background-color: #d1fae5; color: #065f46; }
+.badge-phd { background-color: #f3e8ff; color: #6b21a8; }
+
+/* Estadísticas del ranking  */
+.ranking-stats {
+    display: flex;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 4px;
+}
+
+/* Puntos de Prestigio */
+.ranking-points {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+}
+
+.points-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.points-label {
+    font-size: 0.7rem;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+.info-Stats-label {
+    font-size: 0.7rem;
+    color: #64748b;
+}
+
+.ranking-empty {
+    font-size: 0.85rem;
+    color: #64748b;
+    text-align: center;
+    padding: 10px;
+}
+.sidebar-section {
+    flex: 1;
+    width: 280px !important;     /* Más delgado y elegante */
+    flex-shrink: 0 !important;
+}
+
+.ranking-sidebar {
+    padding: 16px;               /* Contenedor más compacto */
+}
+
+.ranking-name {
+    font-size: 0.85rem;          /* Tipografía ligeramente más pequeña */
+}
+
+.ranking-avatar img {
+    width: 36px;                 /* Ajuste sutil del tamaño de las fotos en el top */
+    height: 36px;
+}

@@ -3,6 +3,7 @@
 
 {% block extra_head %}
     <link rel="stylesheet" href="{% static 'css/apunte_card.css' %}">
+    <link rel="stylesheet" href="{% static 'ranking_usuarios.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -10,12 +11,17 @@
         <h1>Apuntes populares</h1>
         <h3>Explora los apuntes más vistos y mejor valorados por la comunidad.</h3>
     </section>
+    <div class="frame-elements">
+        <section class="contenedor-apuntes">
+            {% for apunte in apuntes %}
+                {% include 'partials/apunte_card.html' with apunte=apunte es_propio=False %}
+            {% empty %}
+                <p>Aún no tienes apuntes publicados. ¡Sube el primero!</p>
+            {% endfor %}
+        </section>
 
-<section class="contenedor-apuntes">
-        {% for apunte in apuntes %}
-            {% include 'partials/apunte_card.html' with apunte=apunte es_propio=False %}
-        {% empty %}
-            <p>Aún no tienes apuntes publicados. ¡Sube el primero!</p>
-        {% endfor %}
-    </section>
+        <aside class = "sidebar-section">
+            {% include 'usuarios/_ranking_usuarios.html' %}
+        </aside>
+    </div>
 {% endblock %}

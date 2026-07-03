@@ -40,7 +40,7 @@ body {
 /* --- Sidebar (Barra Lateral) --- */
 .rectangle-parent {
   background-color: var(--color-whitesmoke);
-  width: 300px;
+  width: 250px;
   padding: 40px 20px;
   display: flex;
   flex-direction: column;
@@ -107,8 +107,16 @@ body {
   flex-direction: column;
 }
 
+.frame-elements {
+  flex: 2;
+  display: flex;
+  flex-direction: row;
+  padding: 0 20px 40px 40px;
+  gap: 30px;
+}
+
 .cabecera-principal {
-  padding: 40px 60px;
+  padding: 40px;
 }
 
 .cabecera-principal h1 {
@@ -125,8 +133,8 @@ body {
 
 /* --- Grid de Apuntes --- */
 .contenedor-apuntes {
+  flex: 3;
   background-color: var(--color-white);
-  margin: 0 60px 60px 60px;
   padding: 40px;
   border-radius: var(--br-20);
   box-shadow: var(--shadow-drop);
