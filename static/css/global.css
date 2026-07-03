@@ -40,7 +40,7 @@ body {
 /* --- Sidebar (Barra Lateral) --- */
 .rectangle-parent {
   background-color: var(--color-whitesmoke);
-  width: 300px;
+  width: 250px;
   padding: 40px 20px;
   display: flex;
   flex-direction: column;
