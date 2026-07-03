@@ -1,0 +1,30 @@
+{%  load static %}
+<div class = "ranking-sidebar">
+    <h3 class = "ranking-title">Top 10 Contribuidores</h3>
+    <div class = "ranking-list">
+        {% for perfil in top_publicadores %}
+            <div class="ranking-item position-{{ forloop.counter }}">
+                <span class="ranking-position">{{ forloop.counter }}</span>
+
+                <div class="ranking-avatar">
+                    <img src="{{ perfil.foto_perfil.url }}" alt="Avatar de {{ perfil.usuario.username }}">
+                </div>
+
+                <div class="ranking-info">
+                    <span class="ranking-name">{{ perfil.usuario.get_full_name|default:perfil.usuario.username }}</span>
+                    <span class="ranking-badge badge-{{ perfil.rango|lower }}">{{ perfil.rango }}</span>
+                    <div class="rangin-stats">
+                        <span class = "info-Stats-label" >📝 {{ perfil.total_apuntes }} apuntes</span>
+                    </div>
+                </div>
+
+                <div class="ranking-points">
+                    <span class="points-value">{{ perfil.puntos_prestigio }}</span>
+                    <span class="points-label">pts</span>
+                </div>
+            </div>
+        {% empty %}
+            <p class="ranking-empty">No hay suficientes perfiles para el ranking.</p>
+        {% endfor %}
+    </div>
+</div>
