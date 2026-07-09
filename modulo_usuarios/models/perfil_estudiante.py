@@ -19,7 +19,7 @@ class PerfilEstudiante(models.Model):
     ira = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True, verbose_name="IRA")
     email_contacto = models.EmailField(blank=True, null=True, verbose_name="Email de Contacto")
     puntos_prestigio = models.IntegerField(default=0, verbose_name="Puntos de Prestigio")
-    # rango = models.CharField(max_length=50, default="MAESTRO", verbose_name="Rango")
+    rango = models.CharField(max_length=50, default="MAESTRO", verbose_name="Rango")
 
     def __str__(self):
         return f"Perfil de {self.usuario.username}"
