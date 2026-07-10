@@ -4,7 +4,6 @@ from django.urls import reverse_lazy
 from django.views.generic import DetailView, UpdateView
 from django.contrib import messages
 
-from modulo_publicaciones_apuntes.models import Apunte
 from ..forms import PerfilEstudianteForm
 from ..models import PerfilEstudiante
 
@@ -24,12 +23,12 @@ class PerfilDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        perfil = self.get_object()
+        perfil = self.object
 
         # ========== APUNTES ==========
-        apuntes = Apunte.objects.filter(autor=perfil).order_by('-fecha_creacion')
+        apuntes = perfil.apuntes.order_by('-fecha_creacion')
         context['apuntes'] = apuntes
-        context['total_apuntes'] = apuntes.count()
+        context['total_apuntes'] = perfil.apuntes.count()
 
         # ========== ESTADÍSTICAS (agregar lógica según tus modelos) ==========
         context['total_vistas'] = 0

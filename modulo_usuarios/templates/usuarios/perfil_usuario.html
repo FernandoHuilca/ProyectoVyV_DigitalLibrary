@@ -40,8 +40,8 @@
         <div class="prestige-badge">
             <div class="prestige-text">
                 <span class="small-text">PRESTIGIO</span>
-                <span class="points">{{ perfil_estudiante.puntos_prestigio|default:500 }} pts</span>
-                <span class="rank">{{ perfil_estudiante.rango|default:"MAESTRO" }}</span>
+                <span class="points">{{ perfil_estudiante.puntos_prestigio|default_if_none:0 }} pts</span>
+                <span class="rank">{{ perfil_estudiante.rango|default:"Prepo" }}</span>
             </div>
             <i class="fa-solid fa-atom"></i>
         </div>

@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from modulo_usuarios.services import ServicioNivelesPrestigio
+
 
 class PerfilEstudiante(models.Model):
     # La relación estricta: un Perfil por cada Usuario de Django
@@ -19,7 +21,7 @@ class PerfilEstudiante(models.Model):
     ira = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True, verbose_name="IRA")
     email_contacto = models.EmailField(blank=True, null=True, verbose_name="Email de Contacto")
     puntos_prestigio = models.IntegerField(default=0, verbose_name="Puntos de Prestigio")
-    rango = models.CharField(max_length=50, default="MAESTRO", verbose_name="Rango")
+    rango = models.CharField(max_length=50, default="prepo", verbose_name="Rango")
 
     def __str__(self):
         return f"Perfil de {self.usuario.username}"
@@ -39,11 +41,12 @@ def crear_perfil_usuario(sender, instance, created, **kwargs):
     Si el usuario es NUEVO (created=True), crea su perfil.
     """
     if created:
-        PerfilEstudiante.objects.create(
+        perfil = PerfilEstudiante.objects.create(
             usuario=instance,
             carrera="No especificada",  # Valor por defecto
             semestre_actual=1,
         )
+        ServicioNivelesPrestigio().registrar_nuevo_estudiante(perfil)
 
 @receiver(post_save, sender=User)
 def guardar_perfil_usuario(sender, instance, **kwargs):
