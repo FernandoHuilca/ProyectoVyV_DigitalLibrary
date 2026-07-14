@@ -5,7 +5,7 @@ def recompute_rango(apps, schema_editor):
     Perfil = apps.get_model('modulo_usuarios', 'PerfilEstudiante')
     # Importar el servicio de niveles; si falla, no interrumpir la migración
     try:
-        from modulo_usuarios.services.niveles_prestigio import ServicioNivelesPrestigio
+        from modulo_prestigio.services.niveles_prestigio import ServicioNivelesPrestigio
     except Exception:
         ServicioNivelesPrestigio = None
 

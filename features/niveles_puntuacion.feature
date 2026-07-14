@@ -2,8 +2,8 @@
   # language: es
 Característica: Rangos o niveles de reputación por puntos alcanzados
   Como publicador de Notable
-  Quiero acumular puntos de prestigio cada vez que la comunidad interactúa positivamente con mi contenido,
-  Para subir de rango y que otros estudiantes reconozcan la calidad de mis apuntes antes de abrirlos.
+  Quiero acumular puntos de prestigio
+  Para ascender de rango y demostrar a la comunidad la calidad y confiabilidad de mi contenido.
 
   Escenario: Asignación automática del rango inicial por defecto
   Dado que un estudiante se registra por primera vez

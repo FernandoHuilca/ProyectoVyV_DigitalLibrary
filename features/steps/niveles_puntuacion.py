@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from uuid import uuid4
 
 from modulo_usuarios.models import PerfilEstudiante
-from modulo_usuarios.services import ServicioNivelesPrestigio
+from modulo_prestigio.services import ServicioNivelesPrestigio
 
 use_step_matcher("parse")
 
