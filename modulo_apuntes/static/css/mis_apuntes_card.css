@@ -324,3 +324,29 @@
         max-height: 50vh;
     }
 }
+
+/* ── Estilos para el campo de subida de archivos ─────────────────────────── */
+input[type="file"] {
+    font-family: var(--font-inter);
+    font-size: 0.85rem;
+    color: var(--color-gray-100);
+}
+
+/* ── Estilo específico para el botón "Examinar" ──────────────────────────── */
+input[type="file"]::file-selector-button {
+    margin-right: 12px;
+    padding: 8px 16px;
+    border: 1px solid var(--color-seagreen);
+    border-radius: var(--br-8);
+    background-color: var(--color-ghostwhite);
+    color: var(--color-seagreen);
+    font-weight: 600;
+    font-family: var(--font-inter);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+input[type="file"]::file-selector-button:hover {
+    background-color: var(--color-seagreen);
+    color: var(--color-white);
+}

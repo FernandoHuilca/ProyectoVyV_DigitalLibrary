@@ -4,19 +4,14 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 
-from modulo_publicaciones_apuntes.models import Apunte
-from modulo_publicaciones_apuntes.services import servicio_guardado_apuntes
-from modulo_mis_apuntes.forms.ApunteCreacionForm import ApunteForm
-
+from modulo_apuntes.models import Apunte
+from modulo_apuntes.forms.ApunteCreacionForm import ApunteForm
 
 @login_required
 def mis_apuntes(request):
     """
     Vista única para listar, crear, actualizar y eliminar apuntes propios.
 
-    Modo CREATE : GET  /mis-apuntes/
-    Modo UPDATE : GET  /mis-apuntes/?editar=<pk>
-    Guardar     : POST /mis-apuntes/
     """
     perfil = request.user.perfil
     apuntes = Apunte.objects.filter(autor=perfil).order_by('-fecha_creacion')
@@ -50,7 +45,7 @@ def mis_apuntes(request):
             else:
                 messages.success(request, f'"{apunte.titulo}" publicado correctamente.')
 
-            return redirect('modulo_mis_apuntes:lista_mis_apuntes')
+            return redirect('apuntes:lista_mis_apuntes')
 
         # Si el form no es válido, volvemos a mostrar la página
         # con los errores Y el apunte que se estaba editando (si aplica)
@@ -86,10 +81,21 @@ def eliminar_apunte(request, pk):
     # Guardar el título para el mensaje de confirmación
     titulo = apunte.titulo
 
-    ServicioGuardadoApuntes().eliminar_apunte(apunte, autor=request.user.perfil)
+    # 1. Eliminar referencias (guardados de otros usuarios)
+    # Esto es automático con on_delete=CASCADE, pero puedes ser explícito:
+    # apunte.guardados.all().delete()  # ← Opcional, Django ya lo hace
+
+    # 2. Eliminar archivos físicos (si quieres liberar espacio)
+    if apunte.contenido:
+        apunte.contenido.delete(save=False)
+    if apunte.portada:
+        apunte.portada.delete(save=False)
+
+    # 3. Eliminar el apunte (y automáticamente los guardados por CASCADE)
+    apunte.delete()
 
     # Mensaje de éxito
     messages.success(request, f'"{titulo}" eliminado correctamente.')
 
     # Redirigir a la lista de mis apuntes
-    return HttpResponseRedirect(reverse('modulo_mis_apuntes:lista_mis_apuntes'))
+    return HttpResponseRedirect(reverse('apuntes:lista_mis_apuntes'))

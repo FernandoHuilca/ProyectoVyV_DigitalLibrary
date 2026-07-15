@@ -1,5 +1,5 @@
 from django import forms
-from modulo_publicaciones_apuntes.models import Apunte
+from modulo_apuntes.models import Apunte
 
 
 class ApunteForm(forms.ModelForm):

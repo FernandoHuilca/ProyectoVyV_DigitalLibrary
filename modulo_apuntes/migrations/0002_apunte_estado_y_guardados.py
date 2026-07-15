@@ -6,7 +6,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("modulo_publicaciones_apuntes", "0001_initial"),
+        ("modulo_apuntes", "0001_initial"),
     ]
 
     operations = [
@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="guardados",
-                        to="modulo_publicaciones_apuntes.apunte",
+                        to="modulo_apuntes.apunte",
                     ),
                 ),
                 (

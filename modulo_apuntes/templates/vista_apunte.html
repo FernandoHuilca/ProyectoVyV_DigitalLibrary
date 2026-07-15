@@ -4,7 +4,7 @@
 {% block title %}{{ apunte.titulo }} | Notable{% endblock %}
 
 {% block extra_head %}
-    <link rel="stylesheet" href="{% static 'publicaciones/vista_apunte.css' %}">
+    <link rel="stylesheet" href="{% static 'css/vista_apunte.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -88,6 +88,6 @@
 
 {% block extra_scripts %}
     {% if apunte.contenido %}
-        <script src="{% static 'publicaciones/js/vista_apunte.js' %}" type="module"></script>
+        <script src="{% static 'js/vista_apunte.js' %}" type="module"></script>
     {% endif %}
 {% endblock %}

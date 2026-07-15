@@ -4,7 +4,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 
 from modulo_prestigio.services import ServicioNivelesPrestigio
-from modulo_publicaciones_apuntes.models import Apunte, ApunteGuardado
+from modulo_apuntes.models import Apunte, ApunteGuardado
 from modulo_usuarios.models import PerfilEstudiante
 
 

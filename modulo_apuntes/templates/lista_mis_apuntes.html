@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/mis_apuntes_card.css' %}">
+<link rel="stylesheet" href="{% static 'css/apunte_card.css' %}">
+<link rel="stylesheet" href="{% static 'css/modal.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{# ── Mensajes de feedback (éxito / error) ────────────────────────────────── #}
+{% if messages %}
+<div class="mensajes-sistema">
+    {% for message in messages %}
+    <p class="mensaje-sistema mensaje-{{ message.tags }}">{{ message }}</p>
+    {% endfor %}
+</div>
+{% endif %}
+
+{# ── Cabecera ─────────────────────────────────────────────────────────────── #}
+<section class="cabecera-principal">
+    <h1>Mis apuntes</h1>
+    <h3>Gestiona el material que has compartido con la comunidad.</h3>
+</section>
+
+<div class="mis-apuntes-layout">
+
+    {# ── Panel de formulario importado ─────────────── #}
+    {% include 'formulario_crud_apunte.html' %}
+
+    {# ── Lista de apuntes propios ─────────────────────────────────────────── #}
+    <section class="contenedor-apuntes">
+        {% for apunte in apuntes %}
+        {% include 'partials/apunte_card.html' with apunte=apunte es_propio=True %}
+        {% empty %}
+        <p class="lista-vacia">
+            Aún no tienes apuntes publicados. ¡Usa el panel de la izquierda para crear el primero!
+        </p>
+        {% endfor %}
+    </section>
+
+</div>
+{% endblock %}

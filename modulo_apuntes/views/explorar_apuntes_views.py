@@ -4,8 +4,8 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 
-from modulo_publicaciones_apuntes.models import Apunte, ApunteGuardado  # Importamos ApunteGuardado
-from modulo_publicaciones_apuntes.services import servicio_guardado_apuntes
+from modulo_apuntes.models import Apunte, ApunteGuardado  # Importamos ApunteGuardado
+from modulo_apuntes.services import servicio_guardado_apuntes
 from modulo_usuarios.models import PerfilEstudiante
 
 
@@ -56,7 +56,7 @@ def lista_apuntes(request):
         'guardados': guardados_ids  # Esto habilita el: {% if apunte.id in guardados %}
     }
 
-    return render(request, 'publicaciones/lista_apuntes.html', contexto)
+    return render(request, 'lista_apuntes.html', contexto)
 
 
 @login_required
@@ -71,14 +71,14 @@ def vista_apunte(request, pk):
     if request.method == "POST":
         # Reutilizamos la función auxiliar común
         _procesar_toggle_guardado(request, apunte)
-        return redirect("publicaciones:vista_apunte", pk=apunte.pk)
+        return redirect("apuntes:vista_apunte", pk=apunte.pk)
 
     contexto = {
         'apunte': apunte,
         'esta_guardado': servicio_guardados.esta_guardado(perfil_usuario, apunte),
     }
 
-    return render(request, 'publicaciones/vista_apunte.html', contexto)
+    return render(request, 'vista_apunte.html', contexto)
 
 
 @login_required
@@ -93,7 +93,7 @@ def guardar_apunte(request, pk):
         _procesar_toggle_guardado(request, apunte)
 
     # Vuelve a la página origen (el listado) usando HTTP_REFERER.
-    return redirect(request.META.get("HTTP_REFERER", "publicaciones:lista_apuntes"))
+    return redirect(request.META.get("HTTP_REFERER", "apuntes:lista_apuntes"))
 
 
 @login_required
@@ -130,4 +130,4 @@ def mi_biblioteca(request):
         'top_publicadores': top_publicadores
     }
 
-    return render(request, 'publicaciones/mi_biblioteca.html', contexto)
+    return render(request, 'mi_biblioteca.html', contexto)

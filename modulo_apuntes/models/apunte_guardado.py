@@ -1,6 +1,6 @@
 from django.db import models
 
-from modulo_publicaciones_apuntes.models.apunte import Apunte
+from modulo_apuntes.models.apunte import Apunte
 from modulo_usuarios.models import PerfilEstudiante
 
 

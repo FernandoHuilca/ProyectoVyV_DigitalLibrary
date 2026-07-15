@@ -118,7 +118,7 @@
     {# ── Botones de gestión: solo visibles en "Mis apuntes" ──────────────── #}
     {% if es_propio %}
     <div class="acciones-apunte">
-        <a href="{% url 'modulo_mis_apuntes:lista_mis_apuntes' %}?editar={{ apunte.pk }}" class="btn-accion btn-editar">Editar</a>
+        <a href="{% url 'publicaciones:lista_mis_apuntes' %}?editar={{ apunte.pk }}" class="btn-accion btn-editar">Editar</a>
         <a href="#"
            class="btn-accion btn-eliminar"
            onclick="mostrarModalConfirmacion({
@@ -127,7 +127,7 @@
        textoConfirmar: 'Eliminar',
        tipo: 'peligro',
        onConfirm: function() {
-           window.location.href = '{% url 'modulo_mis_apuntes:eliminar_apunte' apunte.pk %}';
+           window.location.href = '{% url 'publicaciones:eliminar_apunte' apunte.pk %}';
        }
    }); return false;">
             Eliminar

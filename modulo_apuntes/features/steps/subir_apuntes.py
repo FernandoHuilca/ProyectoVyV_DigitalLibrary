@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from uuid import uuid4
 
-from modulo_publicaciones_apuntes.models import Apunte
+from modulo_apuntes.models import Apunte
 
 use_step_matcher("parse")
 
