@@ -1,12 +1,13 @@
 from django.urls import path
 from django.contrib.auth.views import LoginView
-from . import views
+from .views import apuntes_views
 
 app_name = 'publicaciones'
 
 urlpatterns = [
-    # Nuestra nueva ruta para ver los apuntes.
-    # Usamos la ruta raíz '' para que sea la página principal de la app.
-    path('', views.lista_apuntes, name='lista_apuntes'),
-    path('apunte/<int:pk>/', views.vista_apunte, name='vista_apunte'),
+    # Usamos apuntes_views para mapear cada una de las rutas
+    path('', apuntes_views.lista_apuntes, name='lista_apuntes'),
+    path('apunte/<int:pk>/', apuntes_views.vista_apunte, name='vista_apunte'),
+    path('apunte/<int:pk>/guardar/', apuntes_views.guardar_apunte, name='guardar_apunte'),
+    path('mi-biblioteca/', apuntes_views.mi_biblioteca, name='mi_biblioteca'),
 ]

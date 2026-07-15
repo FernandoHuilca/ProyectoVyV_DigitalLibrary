@@ -8,6 +8,14 @@
 {% endblock %}
 
 {% block content %}
+    {% if messages %}
+        <div class="mensajes-sistema">
+            {% for message in messages %}
+                <p class="mensaje-sistema mensaje-{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <section class="cabecera-principal detalle-cabecera">
         <h1>{{ apunte.titulo }}</h1>
         <h3>Revisa la descripción del apunte y visualiza su contenido en PDF.</h3>
@@ -24,6 +32,27 @@
                 <span class="detalle-etiqueta">Autor</span>
                 <p class="detalle-dato">{{ apunte.autor.usuario.username }}</p>
             </div>
+
+            {# Mostrar botón de guardar solo si el usuario está autenticado y NO es el autor del apunte #}
+            {% if request.user.is_authenticated and apunte.autor_id != request.user.perfil.id %}
+            <div class="detalle-apunte-bloque">
+                <form method="post" class="guardar-apunte-form">
+                    {% csrf_token %}
+                    <button
+                        type="submit"
+                        class="btn-guardar-apunte {% if esta_guardado %}is-guardado{% endif %}"
+                        aria-label="{% if esta_guardado %}Quitar de guardados{% else %}Guardar apunte{% endif %}"
+                    >
+                        <span class="icono-guardado" aria-hidden="true">
+                            <svg width="19" height="20" viewBox="0 0 19 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15.0416 17.5L9.49998 13.3333L3.95831 17.5V4.16667C3.95831 3.72464 4.12513 3.30072 4.42206 2.98816C4.71899 2.67559 5.12172 2.5 5.54165 2.5H13.4583C13.8782 2.5 14.281 2.67559 14.5779 2.98816C14.8748 3.30072 15.0416 3.72464 15.0416 4.16667V17.5Z" />
+                            </svg>
+                        </span>
+                        <span>{% if esta_guardado %}Guardado{% else %}Guardar apunte{% endif %}</span>
+                    </button>
+                </form>
+            </div>
+           {% endif %}
 
             <div class="detalle-apunte-bloque">
                 <span class="detalle-etiqueta">Fecha de publicación</span>

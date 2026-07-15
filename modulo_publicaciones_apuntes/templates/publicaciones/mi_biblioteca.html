@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/apunte_card.css' %}">
+    <link rel="stylesheet" href="{% static 'ranking_usuarios.css' %}">
+{% endblock %}
+
+{% block content %}
+    <section class="cabecera-principal">
+        <h1>Mi Biblioteca</h1>
+        <h3>Accede rápidamente a los apuntes que has guardado para estudiar.</h3>
+    </section>
+
+    <div class="frame-elements">
+        <section class="contenedor-apuntes">
+            {% for apunte in apuntes %}
+                {# Renderizamos cada tarjeta de apunte guardado de forma idéntica #}
+                {% include 'partials/apunte_card.html' with apunte=apunte es_propio=False %}
+            {% empty %}
+                {# Mensaje amigable en caso de que no tenga ningún elemento guardado todavía #}
+                <div class="sin-guardados" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--color-silver, #757575);">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 15px; opacity: 0.7;">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <p style="font-size: 1.1rem; margin-bottom: 10px;">Aún no tienes apuntes guardados en tu biblioteca.</p>
+                    <a href="{% url 'publicaciones:lista_apuntes' %}" style="color: var(--color-seagreen, #108b60); text-decoration: none; font-weight: bold;">
+                        Explorar apuntes populares
+                    </a>
+                </div>
+            {% endfor %}
+        </section>
+
+        <aside class="sidebar-section">
+            {% include 'usuarios/_ranking_usuarios.html' %}
+        </aside>
+    </div>
+{% endblock %}

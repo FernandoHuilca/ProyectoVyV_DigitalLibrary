@@ -20,6 +20,9 @@ class Apunte(models.Model):
     # Siempre es buena práctica saber cuándo se creó el registro
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
+    disponible = models.BooleanField(default=True)
+    acceso_restringido = models.BooleanField(default=False)
+
     # Si luego decides agregar una portada, se vería así:
     portada = models.ImageField(upload_to='apuntes/portadas/%Y/%m/', null=True, blank=True)
 
@@ -27,5 +30,4 @@ class Apunte(models.Model):
 
     def __str__(self):
         return f"{self.titulo} - Subido por {self.autor.usuario.username}"
-
 

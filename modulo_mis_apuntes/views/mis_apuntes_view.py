@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 
 from modulo_publicaciones_apuntes.models import Apunte
+from modulo_publicaciones_apuntes.services import servicio_guardado_apuntes
 from modulo_mis_apuntes.forms.ApunteCreacionForm import ApunteForm
 
 
@@ -85,8 +86,7 @@ def eliminar_apunte(request, pk):
     # Guardar el título para el mensaje de confirmación
     titulo = apunte.titulo
 
-    # Eliminar el apunte
-    apunte.delete()
+    ServicioGuardadoApuntes().eliminar_apunte(apunte, autor=request.user.perfil)
 
     # Mensaje de éxito
     messages.success(request, f'"{titulo}" eliminado correctamente.')
