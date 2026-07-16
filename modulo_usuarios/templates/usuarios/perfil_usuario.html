@@ -29,14 +29,30 @@
             <div class="user-details">
                 <h1>{{ perfil_estudiante.usuario.get_full_name|default:perfil_estudiante.usuario.username }}</h1>
                 <p>@{{ perfil_estudiante.usuario.username }} · {{ perfil_estudiante.carrera|default:"Estudiante" }}</p>
+
                 {% if perfil_estudiante.usuario == request.user %}
-                <a href="{% url 'modulo_usuarios:editar_perfil' perfil_estudiante.pk %}" class="btn-edit">
-                    <i class="fa-solid fa-pen-to-square"></i> Editar perfil
-                </a>
+                    <a href="{% url 'modulo_usuarios:editar_perfil' perfil_estudiante.pk %}" class="btn-edit">
+                        <i class="fa-solid fa-pen-to-square"></i> Editar perfil
+                    </a>
+                {% else %}
+                    {% if ya_suscrito %}
+                        <form action="{% url 'modulo_notificaciones:cancelar_suscripcion' perfil_estudiante.pk %}" method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-unsubscribe">
+                                <i class="fa-solid fa-user-minus"></i> Suscrito
+                            </button>
+                        </form>
+                    {% else %}
+                        <form action="{% url 'modulo_notificaciones:suscribir' perfil_estudiante.pk %}" method="POST" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-subscribe">
+                                <i class="fa-solid fa-user-plus"></i> Suscribirse
+                            </button>
+                        </form>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
-
         <div class="prestige-badge">
             <div class="prestige-text">
                 <span class="small-text">PRESTIGIO</span>
