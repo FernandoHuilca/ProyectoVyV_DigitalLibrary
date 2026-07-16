@@ -24,7 +24,6 @@ class PerfilDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         perfil = self.object
 
         # ========== APUNTES ==========
@@ -32,12 +31,24 @@ class PerfilDetailView(LoginRequiredMixin, DetailView):
         context['apuntes'] = apuntes
         context['total_apuntes'] = perfil.apuntes.count()
 
+        # ========== VALIDACION DE SUSCRIPCION ==========
+        ya_suscrito = False
+        user_autenticado = self.request.user
+
+        if hasattr(user_autenticado, 'perfil'):
+            mi_perfil = user_autenticado.perfil
+            if mi_perfil != perfil:
+                ya_suscrito = mi_perfil.suscripciones.filter(pk=perfil.pk).exists()
+        context['ya_suscrito'] = ya_suscrito
+
         # ========== ESTADÍSTICAS (agregar lógica según tus modelos) ==========
         context['total_vistas'] = 0
         context['total_me_gustas'] = 0
         context['total_descargas'] = apuntes.aggregate(total=Sum("total_descargas"))["total"] or 0  # Agregar si tienes este campo
         context['total_comentarios'] = 0  # Agregar si tienes este campo
-        context['total_seguidores'] = 0  # Agregar si tienes este campo
+
+        # Contamos el número de seguidores
+        context['total_seguidores'] = perfil.suscriptores.count()
 
         return context
 
@@ -45,7 +56,7 @@ class PerfilUpdateView(LoginRequiredMixin, UpdateView):
     model = PerfilEstudiante
     form_class = PerfilEstudianteForm
     template_name = 'usuarios/perfil_usuario_edicion.html'
-    success_url = reverse_lazy('modulo_usuarios:perfil_usuario')
+    success_url = reverse_lazy('modulo_usuarios:mi_perfil')
 
 
     def get_object(self, queryset=None):

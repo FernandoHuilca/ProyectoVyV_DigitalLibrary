@@ -1,0 +1,39 @@
+{% load static %}
+
+<div class="notifications-container">
+    <button class="notifications-trigger" id="notiBellBtn" title="Notificaciones">
+        <i class="fa-solid fa-bell"></i>
+        {% if notificaciones_pendientes_count > 0 %}
+            <span class="noti-badge">{{ notificaciones_pendientes_count }}</span>
+        {% endif %}
+    </button>
+
+    <div class="notifications-dropdown" id="notiDropdown">
+        <div class="dropdown-header">
+            <h4>Notificaciones</h4>
+        </div>
+        <ul class="dropdown-list">
+            {% for noti in mis_notificaciones %}
+                <li class="{% if not noti.leido %}unread{% endif %}">
+                    {% if noti.enlace %}
+                        <a href="{{ noti.enlace }}" class="noti-message">
+                            <p class="noti-message">{{ noti.mensaje }}</p>
+                            <span class="noti-time">{{ noti.creado_en|timesince }}</span>
+                        </a>
+                    {% else %}
+                        <div class="noti-message-only">
+                            <p class="noti-message">{{ noti.mensaje }}</p>
+                            <span class="noti-time">{{ noti.creado_en|timesince }}</span>
+                        </div>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li class="empty-state">
+                    <i class="fa-regular fa-bell-slash"></i>
+                    <p>No tienes notificaciones pendientes</p>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
