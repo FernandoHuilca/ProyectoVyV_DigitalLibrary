@@ -1,1 +1,2 @@
 from .perfil_usuario_views import PerfilDetailView, PerfilUpdateView
+from .autenticacion_views import RegisterView

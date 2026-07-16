@@ -14,7 +14,7 @@ class EstadoApunte:
     acceso_restringido: bool
 
 
-class servicio_guardado_apuntes:
+class ServicioGuardadoApuntes:
     def __init__(self, puntos_por_guardado: int = 5):
         self.puntos_por_guardado = puntos_por_guardado
         self.servicio_prestigio = ServicioNivelesPrestigio()
@@ -55,11 +55,3 @@ class servicio_guardado_apuntes:
 
     def total_guardados(self, apunte: Apunte) -> int:
         return ApunteGuardado.objects.filter(apunte=apunte).count()
-
-    @transaction.atomic
-    def eliminar_apunte(self, apunte: Apunte, autor: PerfilEstudiante):
-        if apunte.autor_id != autor.id:
-            raise PermissionDenied("Solo el autor puede eliminar este apunte.")
-        apunte.disponible = False
-        apunte.acceso_restringido = True
-        apunte.save(update_fields=["disponible", "acceso_restringido"])

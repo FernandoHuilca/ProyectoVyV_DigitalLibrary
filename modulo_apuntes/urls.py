@@ -13,4 +13,5 @@ urlpatterns = [
 
     path('mis-apuntes/', gestion_apuntes_views.mis_apuntes, name='lista_mis_apuntes'),
     path('mis-apuntes/eliminar/<int:pk>/', gestion_apuntes_views.eliminar_apunte, name='eliminar_apunte'),
+    path("apuntes/<int:pk>/descargar/", gestion_apuntes_views.descargar_apunte,name="descargar_apunte",)
 ]

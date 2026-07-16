@@ -5,13 +5,13 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 
 from modulo_apuntes.models import Apunte, ApunteGuardado  # Importamos ApunteGuardado
-from modulo_apuntes.services import servicio_guardado_apuntes
+from modulo_apuntes.services import ServicioGuardadoApuntes
 from modulo_usuarios.models import PerfilEstudiante
 
 
 # ── FUNCIÓN AUXILIAR DE NEGOCIO ──────────────────────────────────────
 def _procesar_toggle_guardado(request, apunte):
-    servicio_guardados = servicio_guardado_apuntes()
+    servicio_guardados = ServicioGuardadoApuntes()
     perfil_usuario = request.user.perfil
 
     ya_guardado = servicio_guardados.esta_guardado(perfil_usuario, apunte)
@@ -65,7 +65,7 @@ def vista_apunte(request, pk):
     if not apunte.disponible or apunte.acceso_restringido:
         raise Http404("El apunte no está disponible.")
 
-    servicio_guardados = servicio_guardado_apuntes()
+    servicio_guardados = ServicioGuardadoApuntes()
     perfil_usuario = request.user.perfil
 
     if request.method == "POST":
