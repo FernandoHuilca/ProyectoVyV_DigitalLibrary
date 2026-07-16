@@ -62,20 +62,19 @@ def notificar_descarga_apunte(sender, instance, created, **kwargs):
 
 @receiver(m2m_changed, sender=PerfilEstudiante.suscripciones.through)
 def notificar_nuevo_suscriptor(sender, instance, action, pk_set, **kwargs):
-    """
-    Crea una notificacion cuando alguien se suscribe al perfil de otro usuario.
-    instance = el suscriptor (quien agregó la suscripción)
-    pk_set = set de PKs de los publicadores a quienes se suscribió
-    """
     if action != "post_add":
         return
 
     for publicador_pk in pk_set:
         publicador = PerfilEstudiante.objects.get(pk=publicador_pk)
         nombre_suscriptor = instance.usuario.first_name or instance.usuario.username
+
+        # CONSTRUCCIÓN DINÁMICA DEL ENLACE AL PERFIL DEL SUSCRIPTOR
+        enlace_perfil = reverse("modulo_usuarios:perfil_usuario", args=[instance.pk])
+
         Notificacion.objects.create(
             receptor=publicador.usuario,
             remitente=instance.usuario,
             mensaje=f"{nombre_suscriptor} se ha suscrito a tu perfil",
-            enlace="",  # Sin enlace específico
+            enlace=enlace_perfil,  # <-- Ahora sí tiene un enlace funcional
         )
