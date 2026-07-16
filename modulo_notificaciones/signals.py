@@ -1,8 +1,9 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import Signal, receiver
 
 from modulo_apuntes.models import Apunte, ApunteGuardado
 from modulo_notificaciones.models import Notificacion
+from modulo_usuarios.models import PerfilEstudiante
 
 
 apunte_calificado_signal = Signal()
@@ -59,4 +60,24 @@ def notificar_descarga_apunte(sender, instance, created, **kwargs):
         enlace=f"/apuntes/{apunte.pk}/",
     )
 
+
+@receiver(m2m_changed, sender=PerfilEstudiante.suscripciones.through)
+def notificar_nuevo_suscriptor(sender, instance, action, pk_set, **kwargs):
+    """
+    Crea una notificacion cuando alguien se suscribe al perfil de otro usuario.
+    instance = el suscriptor (quien agregó la suscripción)
+    pk_set = set de PKs de los publicadores a quienes se suscribió
+    """
+    if action != "post_add":
+        return
+
+    for publicador_pk in pk_set:
+        publicador = PerfilEstudiante.objects.get(pk=publicador_pk)
+        nombre_suscriptor = instance.usuario.first_name or instance.usuario.username
+        Notificacion.objects.create(
+            receptor=publicador.usuario,
+            remitente=instance.usuario,
+            mensaje=f"{nombre_suscriptor} se ha suscrito a tu perfil",
+            enlace="",  # Sin enlace específico
+        )
 

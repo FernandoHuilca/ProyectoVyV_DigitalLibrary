@@ -68,12 +68,14 @@
     <div class="titulo-apunte">{{ apunte.titulo }}</div>
 
     <div class="autor-apunte">
-        {% if apunte.autor.foto_perfil %}
-        <img src="{{ apunte.autor.foto_perfil.url }}"
-             alt="Foto de {{ apunte.autor.usuario.username }}"
-             class="foto-perfil">
-        {% endif %}
-        <span class="nombre-autor">{{ apunte.autor.usuario.username }}</span>
+        <a href="{% url 'modulo_usuarios:perfil_usuario' pk=apunte.autor.pk %}" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 8px;">
+            {% if apunte.autor.foto_perfil %}
+            <img src="{{ apunte.autor.foto_perfil.url }}"
+                 alt="Foto de {{ apunte.autor.usuario.username }}"
+                 class="foto-perfil">
+            {% endif %}
+            <span class="nombre-autor">{{ apunte.autor.usuario.username }}</span>
+        </a>
     </div>
 
     <div class="stats-apunte">
