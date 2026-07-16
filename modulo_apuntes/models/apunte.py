@@ -26,6 +26,7 @@ class Apunte(models.Model):
     # Si luego decides agregar una portada, se vería así:
     portada = models.ImageField(upload_to='apuntes/portadas/%Y/%m/', null=True, blank=True)
 
+    total_descargas = models.PositiveIntegerField(default=0)
 
 
     def __str__(self):

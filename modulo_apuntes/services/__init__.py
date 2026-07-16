@@ -1,2 +1,2 @@
-from .servicio_guardado_apuntes import servicio_guardado_apuntes
-
+from .servicioguardadoapuntes import ServicioGuardadoApuntes
+from .serviciodescargas import ServicioDescargas

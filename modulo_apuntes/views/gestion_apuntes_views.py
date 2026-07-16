@@ -3,6 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+from django.http import FileResponse
+from django.shortcuts import get_object_or_404
+from modulo_apuntes.services import ServicioDescargas
+
 
 from modulo_apuntes.models import Apunte
 from modulo_apuntes.forms.ApunteCreacionForm import ApunteForm
@@ -99,3 +103,22 @@ def eliminar_apunte(request, pk):
 
     # Redirigir a la lista de mis apuntes
     return HttpResponseRedirect(reverse('apuntes:lista_mis_apuntes'))
+
+@login_required
+def descargar_apunte(request, pk):
+    servicio_descargas = ServicioDescargas()
+
+    apunte = get_object_or_404(Apunte, pk=pk)
+
+    # Valida el estado del apunte, registra la descarga
+    # e incrementa el prestigio del autor (según la lógica del servicio)
+    servicio_descargas.descargar(
+        request.user.perfil,
+        apunte
+    )
+
+    return FileResponse(
+        apunte.contenido.open("rb"),
+        as_attachment=True,
+        filename=apunte.contenido.name.split("/")[-1],
+    )

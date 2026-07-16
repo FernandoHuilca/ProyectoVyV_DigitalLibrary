@@ -3,6 +3,8 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import DetailView, UpdateView
 from django.contrib import messages
+from django.db.models import Sum
+
 
 from ..forms import PerfilEstudianteForm
 from ..models import PerfilEstudiante
@@ -33,7 +35,7 @@ class PerfilDetailView(LoginRequiredMixin, DetailView):
         # ========== ESTADÍSTICAS (agregar lógica según tus modelos) ==========
         context['total_vistas'] = 0
         context['total_me_gustas'] = 0
-        context['total_descargas'] = 0  # Agregar si tienes este campo
+        context['total_descargas'] = apuntes.aggregate(total=Sum("total_descargas"))["total"] or 0,  # Agregar si tienes este campo
         context['total_comentarios'] = 0  # Agregar si tienes este campo
         context['total_seguidores'] = 0  # Agregar si tienes este campo
 
