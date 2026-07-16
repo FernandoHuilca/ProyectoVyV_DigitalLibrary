@@ -1,0 +1,140 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Crear cuenta | Notable</title>
+
+    <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'login.css' %}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+</head>
+
+
+<body>
+
+
+<div class="login-container">
+
+
+    <div class="login-card">
+
+
+        <div class="login-header">
+
+            <h1>Crear cuenta</h1>
+
+            <p>Regístrate para comenzar en Notable</p>
+
+        </div>
+
+
+{% if form.errors %}
+
+    <div class="mensajes-sistema">
+
+        <div class="mensaje error">
+
+            <ul>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>
+                            {{ error }}
+                        </li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+
+        </div>
+
+    </div>
+
+{% endif %}
+
+
+
+        <form method="POST" class="login-form">
+
+            {% csrf_token %}
+
+
+
+            <div class="form-group">
+
+                <label for="id_username">
+                    Usuario
+                </label>
+
+                {{ form.username }}
+
+            </div>
+
+
+
+            <div class="form-group">
+
+                <label for="id_password1">
+                    Contraseña
+                </label>
+
+                {{ form.password1 }}
+
+            </div>
+
+
+
+            <div class="form-group">
+
+                <label for="id_password2">
+                    Confirmar contraseña
+                </label>
+
+                {{ form.password2 }}
+
+            </div>
+
+
+
+            <button type="submit" class="btn-login">
+
+                Registrarse
+
+            </button>
+
+
+        </form>
+
+
+
+        <div class="login-footer">
+
+            <p>
+
+                ¿Ya tienes una cuenta?
+
+                <a href="{% url 'modulo_usuarios:login' %}">
+                    Iniciar sesión
+                </a>
+
+            </p>
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>

@@ -35,7 +35,7 @@ class PerfilDetailView(LoginRequiredMixin, DetailView):
         # ========== ESTADÍSTICAS (agregar lógica según tus modelos) ==========
         context['total_vistas'] = 0
         context['total_me_gustas'] = 0
-        context['total_descargas'] = apuntes.aggregate(total=Sum("total_descargas"))["total"] or 0,  # Agregar si tienes este campo
+        context['total_descargas'] = apuntes.aggregate(total=Sum("total_descargas"))["total"] or 0  # Agregar si tienes este campo
         context['total_comentarios'] = 0  # Agregar si tienes este campo
         context['total_seguidores'] = 0  # Agregar si tienes este campo
 
