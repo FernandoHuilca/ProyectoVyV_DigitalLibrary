@@ -1,0 +1,35 @@
+{% if request.user.is_authenticated and apunte.autor_id != request.user.perfil.id %}
+<div class="votos-utilidad" data-votos-container data-votos-url="{% url 'publicaciones:calificar_apunte' apunte.pk %}">
+    <form class="votos-utilidad-form">
+        {% csrf_token %}
+        <button
+            type="button"
+            class="voto-utilidad-btn {% if apunte.mi_voto == 'util' %}is-activo{% endif %}"
+            data-voto="util"
+            aria-pressed="{% if apunte.mi_voto == 'util' %}true{% else %}false{% endif %}"
+        >
+            <span class="voto-utilidad-contenido">
+                <svg class="voto-utilidad-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M2 21h4V9H2v12Zm20-8c0-1.1-.9-2-2-2h-6.3l1-4.7.1-1.1c0-.4-.2-.8-.4-1.1L13 2 7.6 7.4C7.2 7.8 7 8.3 7 8.9V19c0 1.1.9 2 2 2h7c.8 0 1.6-.5 1.9-1.2l3-7c.1-.2.1-.4.1-.8V13Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                </svg>
+                <span>Útil</span>
+            </span>
+            <span class="voto-utilidad-conteo" data-voto-count="util">{{ apunte.total_utiles|default:0 }}</span>
+        </button>
+        <button
+            type="button"
+            class="voto-utilidad-btn {% if apunte.mi_voto == 'no_util' %}is-activo{% endif %}"
+            data-voto="no_util"
+            aria-pressed="{% if apunte.mi_voto == 'no_util' %}true{% else %}false{% endif %}"
+        >
+            <span class="voto-utilidad-contenido">
+                <svg class="voto-utilidad-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M2 3h4v12H2V3Zm20 8c0 1.1-.9 2-2 2h-6.3l1 4.7.1 1.1c0 .4-.2.8-.4 1.1L13 22l-5.4-5.4c-.4-.4-.6-.9-.6-1.5V5c0-1.1.9-2 2-2h7c.8 0 1.6.5 1.9 1.2l3 7c.1.2.1.4.1.8v-.9Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                </svg>
+                <span>No útil</span>
+            </span>
+            <span class="voto-utilidad-conteo" data-voto-count="no_util">{{ apunte.total_no_utiles|default:0 }}</span>
+        </button>
+    </form>
+</div>
+{% endif %}

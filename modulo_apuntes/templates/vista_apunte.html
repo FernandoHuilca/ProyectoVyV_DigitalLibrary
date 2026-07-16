@@ -52,12 +52,16 @@
                     </button>
                 </form>
             </div>
+            <divd class="detalle-apunte-bloque">
+                <span class="detalle-etiqueta">Votar</span>
+                {% include 'partials/votos_utilidad.html' with apunte=apunte %}
+            </divd>
            {% endif %}
 
-            <div class="detalle-apunte-bloque">
-                <span class="detalle-etiqueta">Fecha de publicación</span>
-                <p class="detalle-dato">{{ apunte.fecha_creacion|date:"d/m/Y H:i" }}</p>
-            </div>
+           <div class="detalle-apunte-bloque">
+               <span class="detalle-etiqueta">Fecha de publicación</span>
+               <p class="detalle-dato">{{ apunte.fecha_creacion|date:"d/m/Y H:i" }}</p>
+           </div>
 
         </article>
 
@@ -90,4 +94,5 @@
     {% if apunte.contenido %}
         <script src="{% static 'js/vista_apunte.js' %}" type="module"></script>
     {% endif %}
+    <script src="{% static 'js/votos.js' %}" type="module"></script>
 {% endblock %}

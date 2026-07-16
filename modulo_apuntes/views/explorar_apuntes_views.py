@@ -1,11 +1,13 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
+from django.db.models import Count, Q
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
-from modulo_apuntes.models import Apunte, ApunteGuardado  # Importamos ApunteGuardado
-from modulo_apuntes.services import ServicioGuardadoApuntes
+from modulo_apuntes.models import Apunte, ApunteGuardado, Calificacion  # Importamos ApunteGuardado
+from modulo_apuntes.services import ServicioGuardadoApuntes, ServicioCalificacion
 from modulo_usuarios.models import PerfilEstudiante
 
 
@@ -31,7 +33,16 @@ def _procesar_toggle_guardado(request, apunte):
 @login_required
 def lista_apuntes(request):
     # Consultamos la base de datos de apuntes disponibles.
-    apuntes_bd = Apunte.objects.filter(disponible=True).order_by('-fecha_creacion')
+    servicio_calificacion = ServicioCalificacion()
+    apuntes_bd = list(
+        Apunte.objects.filter(disponible=True)
+        .select_related("autor__usuario")
+        .annotate(
+            total_utiles=Count("calificaciones", filter=Q(calificaciones__tipo=Calificacion.TIPO_UTIL)),
+            total_no_utiles=Count("calificaciones", filter=Q(calificaciones__tipo=Calificacion.TIPO_NO_UTIL)),
+        )
+        .order_by('-fecha_creacion')
+    )
 
     # Añadimos los publicadores destacados del ranking
     top_publicadores = (
@@ -49,6 +60,15 @@ def lista_apuntes(request):
         .values_list('apunte_id', flat=True)
     )
 
+    votos_usuario = dict(
+        Calificacion.objects.filter(usuario=perfil_usuario)
+        .values_list("apunte_id", "tipo")
+    )
+
+    for apunte in apuntes_bd:
+        apunte.prestigio_utilidad = servicio_calificacion.prestigio_de_apunte(apunte)
+        apunte.mi_voto = votos_usuario.get(apunte.id)
+
     # Empaquetamos los datos en el contexto para la plantilla
     contexto = {
         'apuntes': apuntes_bd,
@@ -61,12 +81,21 @@ def lista_apuntes(request):
 
 @login_required
 def vista_apunte(request, pk):
-    apunte = get_object_or_404(Apunte, pk=pk)
+    servicio_calificacion = ServicioCalificacion()
+    apunte = get_object_or_404(
+        Apunte.objects.select_related("autor__usuario").annotate(
+            total_utiles=Count("calificaciones", filter=Q(calificaciones__tipo=Calificacion.TIPO_UTIL)),
+            total_no_utiles=Count("calificaciones", filter=Q(calificaciones__tipo=Calificacion.TIPO_NO_UTIL)),
+        ),
+        pk=pk,
+    )
     if not apunte.disponible or apunte.acceso_restringido:
         raise Http404("El apunte no está disponible.")
 
     servicio_guardados = ServicioGuardadoApuntes()
     perfil_usuario = request.user.perfil
+    apunte.prestigio_utilidad = servicio_calificacion.prestigio_de_apunte(apunte)
+    apunte.mi_voto = servicio_calificacion.tipo_usuario_en_apunte(perfil_usuario, apunte)
 
     if request.method == "POST":
         # Reutilizamos la función auxiliar común
@@ -79,6 +108,42 @@ def vista_apunte(request, pk):
     }
 
     return render(request, 'vista_apunte.html', contexto)
+
+
+@login_required
+@require_POST
+def calificar_apunte(request, pk):
+    apunte = get_object_or_404(Apunte.objects.select_related("autor__usuario"), pk=pk)
+    if not apunte.disponible or apunte.acceso_restringido:
+        raise Http404("El apunte no está disponible.")
+
+    servicio_calificacion = ServicioCalificacion()
+    tipo = request.POST.get("tipo", "")
+
+    try:
+        servicio_calificacion.calificar(request.user.perfil, apunte, tipo)
+    except PermissionDenied as error:
+        return JsonResponse({"error": str(error)}, status=403)
+    except ValueError as error:
+        return JsonResponse({"error": str(error)}, status=400)
+
+    apunte.refresh_from_db()
+    apunte.autor.refresh_from_db()
+
+    conteos = servicio_calificacion.conteo_apunte(apunte)
+    voto_usuario = servicio_calificacion.tipo_usuario_en_apunte(request.user.perfil, apunte)
+
+    return JsonResponse(
+        {
+            "apunte_id": apunte.pk,
+            "total_utiles": conteos[Calificacion.TIPO_UTIL],
+            "total_no_utiles": conteos[Calificacion.TIPO_NO_UTIL],
+            "prestigio_apunte": servicio_calificacion.prestigio_de_apunte(apunte),
+            "prestigio_autor": apunte.autor.puntos_prestigio,
+            "rango_autor": apunte.autor.rango,
+            "voto_usuario": voto_usuario or "",
+        }
+    )
 
 
 @login_required

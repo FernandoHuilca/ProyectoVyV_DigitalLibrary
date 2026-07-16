@@ -16,3 +16,112 @@
 .nombre-autor {
     font-weight: 500;
 }
+
+/* ===== Votos de utilidad ===== */
+
+.votos-utilidad {
+    margin-top: 0rem;
+    padding-top: 0rem;
+
+}
+
+.votos-utilidad-form {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Separador entre botones (opcional) */
+.votos-utilidad-separador {
+    color: var(--color-silver);
+    font-size: 0.8rem;
+    user-select: none;
+}
+
+.voto-utilidad-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: none;
+    background: transparent;
+    color: var(--color-gray-100);
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: var(--br-20);
+}
+
+.voto-utilidad-btn:hover {
+    background: var(--color-ghostwhite);
+    color: var(--color-black);
+}
+
+.voto-utilidad-btn.is-activo {
+    background: #e8f5e9; /* Verde muy claro */
+    color: var(--color-seagreen);
+}
+
+.voto-utilidad-btn.is-activo:hover {
+    background: #c8e6c9; /* Verde claro un poco más intenso */
+}
+
+.voto-utilidad-contenido {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.voto-utilidad-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.voto-utilidad-icon path {
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linejoin: round;
+    fill: none;
+}
+
+.voto-utilidad-btn.is-activo .voto-utilidad-icon path {
+    fill: none;
+}
+
+.voto-utilidad-conteo {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.8rem;
+    color: var(--color-black);
+    min-width: 1.2rem;
+    text-align: center;
+    font-weight: 400;
+}
+
+.voto-utilidad-btn.is-activo .voto-utilidad-conteo {
+    color: var(--color-black);
+}
+
+/* ===== Para pantallas muy pequeñas ===== */
+@media (max-width: 576px) {
+    .votos-utilidad-form {
+        gap: 0.25rem;
+    }
+
+    .voto-utilidad-btn {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.4rem;
+    }
+
+    .voto-utilidad-icon {
+        width: 14px;
+        height: 14px;
+    }
+
+    .voto-utilidad-conteo {
+        font-size: 0.7rem;
+        min-width: 1rem;
+    }
+}
