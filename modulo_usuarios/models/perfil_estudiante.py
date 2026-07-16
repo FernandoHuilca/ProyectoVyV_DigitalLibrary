@@ -13,7 +13,9 @@ class PerfilEstudiante(models.Model):
     # Atributos específicos para la plataforma de apuntes
     carrera = models.CharField(max_length=100, verbose_name="Carrera Universitaria")
     semestre_actual = models.IntegerField(default=1)
-    foto_perfil = models.ImageField(upload_to='perfiles/avatares/', default='perfiles/default.png')
+    foto_perfil = models.ImageField(
+        upload_to='perfiles/avatares/',
+        default='perfiles/avatares/default.png')
 
     descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción Corta")
     bio = models.TextField(blank=True, null=True, verbose_name="Biografía o Información")
