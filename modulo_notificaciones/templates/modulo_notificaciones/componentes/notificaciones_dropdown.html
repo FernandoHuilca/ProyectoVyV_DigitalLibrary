@@ -16,10 +16,10 @@
             {% for noti in mis_notificaciones %}
                 <li class="{% if not noti.leido %}unread{% endif %}">
                     {% if noti.enlace %}
-                        <div>
+                        <a href="{{ noti.enlace }}" class="noti-message">
                             <p class="noti-message">{{ noti.mensaje }}</p>
                             <span class="noti-time">{{ noti.creado_en|timesince }}</span>
-                        </div>
+                        </a>
                     {% else %}
                         <div class="noti-message-only">
                             <p class="noti-message">{{ noti.mensaje }}</p>

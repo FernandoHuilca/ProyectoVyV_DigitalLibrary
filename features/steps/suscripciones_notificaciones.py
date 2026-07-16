@@ -160,7 +160,7 @@ def step_impl(context: behave.runner.Context, texto: str):
 @step("la notificación debe incluir el enlace directo al apunte")
 def step_impl(context: behave.runner.Context):
     assert context.notificaciones_destino.filter(
-        enlace=f"/apuntes/{context.apunte_publicado.pk}/"
+        enlace=f"/apunte/{context.apunte_publicado.pk}/"
     ).exists()
 
 
