@@ -6,7 +6,7 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from modulo_apuntes.models import Apunte, ApunteGuardado, Calificacion, Comentario  # Importamos ApunteGuardado
+from modulo_apuntes.models import Apunte, ApunteGuardado, Calificacion, Comentario
 from modulo_apuntes.services import ServicioGuardadoApuntes, ServicioCalificacion, ServicioComentario
 from modulo_usuarios.models import PerfilEstudiante
 
@@ -32,15 +32,11 @@ def _procesar_toggle_guardado(request, apunte):
 
 @login_required
 def lista_apuntes(request):
-    # Consultamos la base de datos de apuntes disponibles.
-    #apuntes_bd = Apunte.objects.filter(disponible=True).order_by('-fecha_creacion')
-    apuntes_bd = Apunte.objects.filter(
-        disponible=True,
-        estado='PUBLICADO'
-    ).order_by('-fecha_creacion')
     servicio_calificacion = ServicioCalificacion()
+
+    # CORREGIDO: Añadido el filtro estricto estado='PUBLICADO' dentro de la consulta con anotaciones
     apuntes_bd = list(
-        Apunte.objects.filter(disponible=True)
+        Apunte.objects.filter(disponible=True, estado='PUBLICADO')
         .select_related("autor__usuario")
         .annotate(
             total_utiles=Count("calificaciones", filter=Q(calificaciones__tipo=Calificacion.TIPO_UTIL)),
@@ -58,8 +54,6 @@ def lista_apuntes(request):
 
     perfil_usuario = request.user.perfil
 
-    # Usamos el ORM de Django para traer eficientemente solo los IDs de los apuntes
-    # que este usuario en particular ya tiene guardados.
     guardados_ids = set(
         ApunteGuardado.objects.filter(usuario=perfil_usuario)
         .values_list('apunte_id', flat=True)
@@ -74,11 +68,10 @@ def lista_apuntes(request):
         apunte.prestigio_utilidad = servicio_calificacion.prestigio_de_apunte(apunte)
         apunte.mi_voto = votos_usuario.get(apunte.id)
 
-    # Empaquetamos los datos en el contexto para la plantilla
     contexto = {
         'apuntes': apuntes_bd,
         'top_publicadores': top_publicadores,
-        'guardados': guardados_ids  # Esto habilita el: {% if apunte.id in guardados %}
+        'guardados': guardados_ids
     }
 
     return render(request, 'lista_apuntes.html', contexto)
@@ -91,6 +84,7 @@ def vista_apunte(request, pk):
         "autor__usuario",
         "parent__autor__usuario",
     ).order_by("creado_en")
+
     apunte = get_object_or_404(
         Apunte.objects.select_related("autor__usuario").annotate(
             total_utiles=Count("calificaciones", filter=Q(calificaciones__tipo=Calificacion.TIPO_UTIL)),
@@ -118,7 +112,6 @@ def vista_apunte(request, pk):
     apunte.comentarios_principales = list(apunte.comentarios.all())
 
     if request.method == "POST":
-        # Reutilizamos la función auxiliar común
         _procesar_toggle_guardado(request, apunte)
         return redirect("apuntes:vista_apunte", pk=apunte.pk)
 
@@ -147,7 +140,8 @@ def gestionar_comentario_apunte(request, pk):
             parent_id = request.POST.get("parent_id") or None
             parent = None
             if parent_id:
-                parent = get_object_or_404(Comentario.objects.select_related("autor", "apunte"), pk=parent_id, apunte=apunte)
+                parent = get_object_or_404(Comentario.objects.select_related("autor", "apunte"), pk=parent_id,
+                                           apunte=apunte)
             servicio_comentario.crear_comentario(
                 autor=request.user.perfil,
                 apunte=apunte,
@@ -159,7 +153,8 @@ def gestionar_comentario_apunte(request, pk):
             if not contenido:
                 messages.error(request, "El comentario no puede estar vacío.")
                 return redirect("apuntes:vista_apunte", pk=apunte.pk)
-            comentario = get_object_or_404(Comentario.objects.select_related("autor", "apunte"), pk=request.POST.get("comentario_id"), apunte=apunte)
+            comentario = get_object_or_404(Comentario.objects.select_related("autor", "apunte"),
+                                           pk=request.POST.get("comentario_id"), apunte=apunte)
             servicio_comentario.editar_comentario(
                 usuario_solicitante=request.user.perfil,
                 comentario=comentario,
@@ -167,7 +162,8 @@ def gestionar_comentario_apunte(request, pk):
             )
             messages.success(request, "Comentario actualizado correctamente.")
         elif accion == "toggle_corazon":
-            comentario = get_object_or_404(Comentario.objects.select_related("autor", "apunte"), pk=request.POST.get("comentario_id"), apunte=apunte)
+            comentario = get_object_or_404(Comentario.objects.select_related("autor", "apunte"),
+                                           pk=request.POST.get("comentario_id"), apunte=apunte)
             servicio_comentario.dar_corazon(
                 usuario_solicitante=request.user.perfil,
                 comentario=comentario,
@@ -189,10 +185,10 @@ def calificar_apunte(request, pk):
         raise Http404("El apunte no está disponible.")
 
     servicio_calificacion = ServicioCalificacion()
-    tipo = request.POST.get("tipo", "")
+    type = request.POST.get("tipo", "")
 
     try:
-        servicio_calificacion.calificar(request.user.perfil, apunte, tipo)
+        servicio_calificacion.calificar(request.user.perfil, apunte, type)
     except PermissionDenied as error:
         return JsonResponse({"error": str(error)}, status=403)
     except ValueError as error:
@@ -219,16 +215,9 @@ def calificar_apunte(request, pk):
 
 @login_required
 def guardar_apunte(request, pk):
-    """
-    Nueva vista que procesa la acción de guardar desde el listado general
-    y redirige al usuario al mismo punto donde hizo clic.
-    """
     apunte = get_object_or_404(Apunte, pk=pk)
-
     if request.method == "POST":
         _procesar_toggle_guardado(request, apunte)
-
-    # Vuelve a la página origen (el listado) usando HTTP_REFERER.
     return redirect(request.META.get("HTTP_REFERER", "apuntes:lista_apuntes"))
 
 
@@ -236,24 +225,20 @@ def guardar_apunte(request, pk):
 def mi_biblioteca(request):
     perfil_usuario = request.user.perfil
 
-    # 1. Filtramos los registros guardados por este usuario.
-    # Usamos select_related para traer los apuntes en una sola consulta SQL optimizada.
     guardados_relacion = (
         ApunteGuardado.objects
         .filter(usuario=perfil_usuario)
         .select_related('apunte')
     )
 
-    # 2. Extraemos los apuntes asociados que se encuentren disponibles (activos)
+    # CORREGIDO: Aseguramos que en la biblioteca personal tampoco explote si hay apuntes huérfanos o no publicados
     apuntes_guardados = [
         reg.apunte for reg in guardados_relacion
-        if reg.apunte.disponible and not reg.apunte.acceso_restringido
+        if reg.apunte.disponible and not reg.apunte.acceso_restringido and reg.apunte.estado == 'PUBLICADO'
     ]
 
-    # 3. Guardamos los IDs en un set para pintar los iconos de guardado de forma instantánea
     guardados_ids = {apunte.id for apunte in apuntes_guardados}
 
-    # 4. Traemos los publicadores destacados (el ranking que usa tu barra lateral)
     top_publicadores = (
         PerfilEstudiante.objects
         .select_related("usuario")

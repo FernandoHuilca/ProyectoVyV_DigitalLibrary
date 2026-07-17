@@ -1,5 +1,4 @@
 # language: es
-# Created by ferna at 7/16/2026
 
 Característica: Revisión por pares de apuntes
   Como publicador de apuntes,
