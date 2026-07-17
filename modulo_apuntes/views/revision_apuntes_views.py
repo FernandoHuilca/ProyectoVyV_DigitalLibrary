@@ -1,9 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.urls import reverse
 from modulo_apuntes.models.solicitud_revision import SolicitudRevision
-from modulo_notificaciones.models import Notificacion
 from modulo_prestigio.services import ServicioNivelesPrestigio # Importa el servicio
 
 @login_required
@@ -52,25 +50,10 @@ def calificar_revision(request, revision_id):
             perfil_revisor = request.user.perfil
             servicio_prestigio.incrementar_prestigio(perfil_revisor, 15)
 
-            # ── CREACIÓN DE LA NOTIFICACIÓN DE APROBACIÓN ──
-            Notificacion.objects.create(
-                receptor=apunte.autor.usuario,
-                remitente=request.user,  # El revisor es el remitente
-                mensaje=f' ¡Buenas noticias! Tu apunte "{apunte.titulo}" ha sido avalado y está listo para publicarse.',
-                enlace=reverse('publicaciones:lista_mis_apuntes')  # Al hacer clic, lo lleva a su panel
-            )
-
         elif accion == 'rechazar':
             solicitud.estado = 'RECHAZADO'
             apunte.estado = 'BORRADOR'
 
-            # ── CREACIÓN DE LA NOTIFICACIÓN DE RECHAZO ──
-            Notificacion.objects.create(
-                receptor=apunte.autor.usuario,
-                remitente=request.user,
-                mensaje=f' Tu apunte "{apunte.titulo}" requiere algunos cambios. Revisa los comentarios.',
-                enlace=reverse('publicaciones:lista_mis_apuntes')
-            )
 
         solicitud.save()
         apunte.save()

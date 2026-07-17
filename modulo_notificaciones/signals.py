@@ -1,16 +1,29 @@
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import m2m_changed, post_save, pre_save
 from django.dispatch import Signal, receiver
-from django.urls import reverse  # <--- IMPORTANTE: Importa reverse aquí
+from django.urls import reverse
 
-from modulo_apuntes.models import Apunte, ApunteGuardado
+from modulo_apuntes.models import Apunte, ApunteGuardado, SolicitudRevision
 from modulo_notificaciones.models import Notificacion
 from modulo_usuarios.models import PerfilEstudiante
 
 apunte_calificado_signal = Signal()
 
+
+@receiver(pre_save, sender=Apunte)
+def cache_estado_anterior_apunte(sender, instance, **kwargs):
+    if not instance.pk:
+        instance._estado_anterior = None
+        return
+    instance._estado_anterior = sender.objects.filter(pk=instance.pk).values_list("estado", flat=True).first()
+
+
 @receiver(post_save, sender=Apunte)
 def notificar_publicacion_apunte(sender, instance, created, **kwargs):
-    if not created:
+    if instance.estado != "PUBLICADO":
+        return
+
+    estado_anterior = getattr(instance, "_estado_anterior", None)
+    if not created and estado_anterior == "PUBLICADO":
         return
 
     autor = instance.autor
@@ -21,7 +34,6 @@ def notificar_publicacion_apunte(sender, instance, created, **kwargs):
             receptor=suscriptor.usuario,
             remitente=autor.usuario,
             mensaje=f"{nombre_autor} ha publicado un nuevo apunte: {instance.titulo}",
-            # Reemplazamos el string hardcoded por reverse
             enlace=reverse("publicaciones:vista_apunte", args=[instance.pk]),
         )
 
@@ -37,7 +49,6 @@ def notificar_calificacion_util(sender, apunte, calificador, tipo_calificacion, 
         receptor=apunte.autor.usuario,
         remitente=calificador.usuario,
         mensaje=f'Tu apunte "{apunte.titulo}" recibio una nueva calificacion util.',
-        # Reemplazamos el string hardcoded por reverse
         enlace=reverse("publicaciones:vista_apunte", args=[apunte.pk]),
     )
 
@@ -56,7 +67,6 @@ def notificar_descarga_apunte(sender, instance, created, **kwargs):
         receptor=apunte.autor.usuario,
         remitente=guardador.usuario,
         mensaje=f'Tu apunte "{apunte.titulo}" fue descargado.',
-        # Reemplazamos el string hardcoded por reverse
         enlace=reverse("publicaciones:vista_apunte", args=[apunte.pk]),
     )
 
@@ -69,12 +79,56 @@ def notificar_nuevo_suscriptor(sender, instance, action, pk_set, **kwargs):
         publicador = PerfilEstudiante.objects.get(pk=publicador_pk)
         nombre_suscriptor = instance.usuario.first_name or instance.usuario.username
 
-        # CONSTRUCCIÓN DINÁMICA DEL ENLACE AL PERFIL DEL SUSCRIPTOR
         enlace_perfil = reverse("modulo_usuarios:perfil_usuario", args=[instance.pk])
 
         Notificacion.objects.create(
             receptor=publicador.usuario,
             remitente=instance.usuario,
             mensaje=f"{nombre_suscriptor} se ha suscrito a tu perfil",
-            enlace=enlace_perfil,  # <-- Ahora sí tiene un enlace funcional
+            enlace=enlace_perfil,
+        )
+
+
+@receiver(pre_save, sender=SolicitudRevision)
+def cache_estado_anterior_solicitud(sender, instance, **kwargs):
+    if not instance.pk:
+        instance._estado_anterior = None
+        return
+    instance._estado_anterior = sender.objects.filter(pk=instance.pk).values_list("estado", flat=True).first()
+
+
+@receiver(post_save, sender=SolicitudRevision)
+def notificar_flujo_revision(sender, instance, created, **kwargs):
+    apunte = instance.apunte
+    autor_user = apunte.autor.usuario
+    revisor_user = instance.revisor
+
+    if created:
+        Notificacion.objects.create(
+            receptor=revisor_user,
+            remitente=autor_user,
+            mensaje=f'Tienes una nueva solicitud de revision para el apunte: "{apunte.titulo}".',
+            enlace=reverse("publicaciones:mis_revisiones"),
+        )
+        return
+
+    estado_anterior = getattr(instance, "_estado_anterior", None)
+    if estado_anterior == instance.estado:
+        return
+
+    if instance.estado == "APROBADO":
+        Notificacion.objects.create(
+            receptor=autor_user,
+            remitente=revisor_user,
+            mensaje=f'Tu apunte "{apunte.titulo}" ha sido aprobado. Ya puedes publicarlo.',
+            enlace=reverse("publicaciones:lista_mis_apuntes"),
+        )
+        return
+
+    if instance.estado == "RECHAZADO":
+        Notificacion.objects.create(
+            receptor=autor_user,
+            remitente=revisor_user,
+            mensaje=f'Se han solicitado cambios para tu apunte "{apunte.titulo}" en revision.',
+            enlace=f'{reverse("publicaciones:lista_mis_apuntes")}?editar={apunte.pk}',
         )
