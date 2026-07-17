@@ -62,4 +62,12 @@ Característica: Suscripción y Notificaciones entre Publicador y Consumidor
       | 49                   | 135              | 50                   | 60     | 195            |
       | 99                   | 195              | 100                  | 120    | 315            |
 
+  Escenario: El mismo hito de suscriptores no otorga puntos dos veces por resuscripción
+    Dado que la publicadora "Ana" tiene 0 suscriptores y "100" puntos de prestigio
+    Cuando un nuevo estudiante se suscribe al perfil de "Ana"
+    Y ese estudiante cancela su suscripción a "Ana"
+    Y ese estudiante se vuelve a suscribir a "Ana"
+    Entonces "Ana" debe tener "1" suscriptores
+    Y su total de puntos de prestigio debe ser "105"
+
 

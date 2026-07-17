@@ -291,11 +291,30 @@ def step_impl(context: behave.runner.Context, publicador: str, suscriptores_prev
 @step('un nuevo estudiante se suscribe al perfil de "{publicador}"')
 def step_impl(context: behave.runner.Context, publicador: str):
     usuario_nuevo, perfil_nuevo = _crear_usuario_con_perfil("NuevoSuscriptor")
+    context.alias_nuevo_suscriptor = "NuevoSuscriptor"
     context.usuarios["NuevoSuscriptor"] = usuario_nuevo
     context.perfiles["NuevoSuscriptor"] = perfil_nuevo
 
     context.servicio_suscripciones.suscribir(
         perfil_nuevo,
+        context.perfiles[publicador],
+    )
+
+
+@step('ese estudiante cancela su suscripción a "{publicador}"')
+def step_impl(context: behave.runner.Context, publicador: str):
+    alias = getattr(context, "alias_nuevo_suscriptor", "NuevoSuscriptor")
+    context.servicio_suscripciones.cancelar_suscripcion(
+        context.perfiles[alias],
+        context.perfiles[publicador],
+    )
+
+
+@step('ese estudiante se vuelve a suscribir a "{publicador}"')
+def step_impl(context: behave.runner.Context, publicador: str):
+    alias = getattr(context, "alias_nuevo_suscriptor", "NuevoSuscriptor")
+    context.servicio_suscripciones.suscribir(
+        context.perfiles[alias],
         context.perfiles[publicador],
     )
 
@@ -316,6 +335,11 @@ def step_impl(context: behave.runner.Context, puntos: int):
 
 @step('su total de puntos de prestigio debe ser "{puntos_totales}"')
 def step_impl(context: behave.runner.Context, puntos_totales: str):
+    if not hasattr(context, "puntos_despues_hito"):
+        perfil_publicador = context.perfiles["Ana"]
+        perfil_publicador.refresh_from_db(fields=["puntos_prestigio"])
+        context.puntos_despues_hito = perfil_publicador.puntos_prestigio
+
     assert context.puntos_despues_hito == int(puntos_totales)
 
 
