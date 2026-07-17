@@ -22,7 +22,7 @@ def _crear_usuario_con_perfil(nombre: str):
     return usuario, usuario.perfil
 
 
-def _crear_apunte(autor_perfil, titulo: str):
+def _crear_apunte(autor_perfil, titulo: str, estado: str = "BORRADOR"):
     contenido = SimpleUploadedFile(
         name=f"apunte_{uuid4().hex[:8]}.pdf",
         content=b"%PDF-1.4 test",
@@ -33,6 +33,7 @@ def _crear_apunte(autor_perfil, titulo: str):
         descripcion=f"Apunte de {titulo}",
         contenido=contenido,
         autor=autor_perfil,
+        estado=estado,
     )
 
 
@@ -141,7 +142,11 @@ def step_impl(context: behave.runner.Context, consumidor: str, publicador: str):
 
 @step('"{publicador}" publica un nuevo apunte titulado "{titulo}"')
 def step_impl(context: behave.runner.Context, publicador: str, titulo: str):
-    context.apunte_publicado = _crear_apunte(context.perfiles[publicador], titulo)
+    context.apunte_publicado = _crear_apunte(
+        context.perfiles[publicador],
+        titulo,
+        estado="PUBLICADO",
+    )
 
 
 @step('"{consumidor}" debe recibir una notificación en la plataforma')
