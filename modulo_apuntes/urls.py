@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth.views import LoginView
-from .views import explorar_apuntes_views, gestion_apuntes_views
+from .views import explorar_apuntes_views, gestion_apuntes_views, revision_apuntes_views
 
 app_name = 'apuntes'
 
@@ -13,5 +13,10 @@ urlpatterns = [
 
     path('mis-apuntes/', gestion_apuntes_views.mis_apuntes, name='lista_mis_apuntes'),
     path('mis-apuntes/eliminar/<int:pk>/', gestion_apuntes_views.eliminar_apunte, name='eliminar_apunte'),
-    path("apuntes/<int:pk>/descargar/", gestion_apuntes_views.descargar_apunte,name="descargar_apunte",)
+    path("apuntes/<int:pk>/descargar/", gestion_apuntes_views.descargar_apunte, name="descargar_apunte", ),
+    # Nueva ruta para la bandeja del revisor
+    path('mis-revisiones/', revision_apuntes_views.panel_revisiones, name='mis_revisiones'),
+    path('revision/<int:revision_id>/calificar/', revision_apuntes_views.calificar_revision, name='calificar_revision'),
+    path('mis-apuntes/<int:pk>/confirmar-publicacion/', gestion_apuntes_views.publicar_apunte_aprobado,
+         name='confirmar_publicacion'),
 ]

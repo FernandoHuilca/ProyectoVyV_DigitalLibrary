@@ -1,0 +1,78 @@
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.urls import reverse
+from modulo_apuntes.models.solicitud_revision import SolicitudRevision
+from modulo_notificaciones.models import Notificacion
+
+
+@login_required
+def panel_revisiones(request):
+    """
+    Muestra al usuario los apuntes que otros le han enviado para revisar.
+    """
+    # 1. Filtramos las solicitudes que están esperando la acción de este usuario
+    solicitudes_pendientes = SolicitudRevision.objects.filter(
+        revisor=request.user,
+        estado='PENDIENTE'
+    ).order_by('-fecha_creacion')
+
+    # 2. Filtramos el historial (las que ya aprobó o rechazó)
+    solicitudes_historial = SolicitudRevision.objects.filter(
+        revisor=request.user
+    ).exclude(estado='PENDIENTE').order_by('-fecha_revision')
+
+    context = {
+        'pendientes': solicitudes_pendientes,
+        'historial': solicitudes_historial,
+    }
+
+    return render(request, 'mis_revisiones.html', context)
+
+
+@login_required
+def calificar_revision(request, revision_id):
+    solicitud = get_object_or_404(SolicitudRevision, pk=revision_id, revisor=request.user)
+    apunte = solicitud.apunte
+
+    if request.method == 'POST':
+        accion = request.POST.get('accion')
+        comentario = request.POST.get('comentario_revisor', '')
+
+        solicitud.comentario_revisor = comentario
+
+        if accion == 'aprobar':
+            solicitud.estado = 'APROBADO'
+            apunte.estado = 'APROBADO'
+
+            # ── CREACIÓN DE LA NOTIFICACIÓN DE APROBACIÓN ──
+            Notificacion.objects.create(
+                receptor=apunte.autor.usuario,
+                remitente=request.user,  # El revisor es el remitente
+                mensaje=f'✅ ¡Buenas noticias! Tu apunte "{apunte.titulo}" ha sido avalado y está listo para publicarse.',
+                enlace=reverse('publicaciones:lista_mis_apuntes')  # Al hacer clic, lo lleva a su panel
+            )
+
+        elif accion == 'rechazar':
+            solicitud.estado = 'RECHAZADO'
+            apunte.estado = 'BORRADOR'
+
+            # ── CREACIÓN DE LA NOTIFICACIÓN DE RECHAZO ──
+            Notificacion.objects.create(
+                receptor=apunte.autor.usuario,
+                remitente=request.user,
+                mensaje=f'❌ Tu apunte "{apunte.titulo}" requiere algunos cambios. Revisa los comentarios.',
+                enlace=reverse('publicaciones:lista_mis_apuntes')
+            )
+
+        solicitud.save()
+        apunte.save()
+
+        messages.success(request, f'Tu revisión para "{apunte.titulo}" fue enviada al autor.')
+        return redirect('publicaciones:mis_revisiones')
+
+    context = {
+        'solicitud': solicitud,
+        'apunte': apunte,
+    }
+    return render(request, 'calificar_apunte.html', context)

@@ -28,6 +28,16 @@ class Apunte(models.Model):
 
     total_descargas = models.PositiveIntegerField(default=0)
 
+    #Fernando estuvo aquí
+    ESTADOS_APUNTE = [
+        ('BORRADOR', 'Borrador / Privado'),
+        ('EN_REVISION', 'En Revisión'),
+        ('APROBADO', 'Aprobado (Listo para publicar)'),
+        ('PUBLICADO', 'Publicado'),
+    ]
+    estado = models.CharField(max_length=20, choices=ESTADOS_APUNTE, default='BORRADOR')
+
+
 
     def __str__(self):
         return f"{self.titulo} - Subido por {self.autor.usuario.username}"

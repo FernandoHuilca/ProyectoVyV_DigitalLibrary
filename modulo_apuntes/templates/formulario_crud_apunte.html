@@ -1,81 +1,93 @@
 {# ── Panel de formulario: CREATE o UPDATE según contexto ─────────────── #}
-    <aside class="panel-formulario">
+<aside class="panel-formulario">
 
-        <h2 class="panel-titulo">
-            {% if apunte_editando %}
-            Editando apunte
-            {% else %}
-            Nuevo apunte
-            {% endif %}
-        </h2>
-
+    <h2 class="panel-titulo">
         {% if apunte_editando %}
-        <p class="panel-subtitulo">{{ apunte_editando.titulo }}</p>
+        Editando apunte
+        {% else %}
+        Nuevo apunte
+        {% endif %}
+    </h2>
+
+    {% if apunte_editando %}
+    <p class="panel-subtitulo">{{ apunte_editando.titulo }}</p>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        {# Campo oculto: presencia = UPDATE, ausencia = CREATE #}
+        {% if apunte_editando %}
+        <input type="hidden" name="apunte_id" value="{{ apunte_editando.pk }}">
         {% endif %}
 
-        <form method="POST" enctype="multipart/form-data" novalidate>
-            {% csrf_token %}
+        {# Errores generales del formulario #}
+        {% if form.non_field_errors %}
+        <div class="form-errores">{{ form.non_field_errors }}</div>
+        {% endif %}
 
-            {# Campo oculto: presencia = UPDATE, ausencia = CREATE #}
-            {% if apunte_editando %}
-            <input type="hidden" name="apunte_id" value="{{ apunte_editando.pk }}">
-            {% endif %}
+        {# Campos del formulario con sus errores inline #}
+        {% for field in form %}
+        <div class="campo-grupo">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
 
-            {# Errores generales del formulario #}
-            {% if form.non_field_errors %}
-            <div class="form-errores">{{ form.non_field_errors }}</div>
-            {% endif %}
-
-            {# Campos del formulario con sus errores inline #}
-            {% for field in form %}
-            <div class="campo-grupo">
-                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                {{ field }}
-
-                {% if field.name == "portada" and apunte_editando and apunte_editando.portada %}
-                <div class="archivo-actual">
-                    <p style="font-size: 0.8rem; color: var(--color-gray-100); margin: 8px 0 4px 0;">Portada actual:</p>
-                    <img src="{{ apunte_editando.portada.url }}" alt="Portada actual"
-                         style="max-width: 150px; max-height: 120px; border-radius: 8px; border: 1px solid var(--color-silver);">
-                    <p style="font-size: 0.7rem; color: var(--color-gray-100); margin: 4px 0 0 0;">Sube una nueva para
-                        reemplazarla.</p>
-                </div>
-                {% endif %}
-
-                {# MOSTRAR ARCHIVO ACTUAL PARA CONTENIDO #}
-                {% if field.name == "contenido" and apunte_editando and apunte_editando.contenido %}
-                <div class="archivo-actual">
-                    <p style="font-size: 0.8rem; color: var(--color-gray-100); margin: 8px 0 4px 0;">PDF actual:</p>
-                    <a href="{{ apunte_editando.contenido.url }}" target="_blank"
-                       style="color: var(--color-seagreen); text-decoration: none; font-weight: 500;">
-                        📄 {{ apunte_editando.contenido.name }}
-                    </a>
-                    <p style="font-size: 0.7rem; color: var(--color-gray-100); margin: 4px 0 0 0;">Sube un nuevo PDF
-                        para reemplazarlo.</p>
-                </div>
-                {% endif %}
-
-                {% if field.errors %}
-                <span class="campo-error">{{ field.errors|join:", " }}</span>
-                {% endif %}
+            {% if field.name == "portada" and apunte_editando and apunte_editando.portada %}
+            <div class="archivo-actual">
+                <p style="font-size: 0.8rem; color: var(--color-gray-100); margin: 8px 0 4px 0;">Portada actual:</p>
+                <img src="{{ apunte_editando.portada.url }}" alt="Portada actual"
+                     style="max-width: 150px; max-height: 120px; border-radius: 8px; border: 1px solid var(--color-silver);">
+                <p style="font-size: 0.7rem; color: var(--color-gray-100); margin: 4px 0 0 0;">Sube una nueva para
+                    reemplazarla.</p>
             </div>
-            {% endfor %}
+            {% endif %}
 
-            <div class="panel-acciones">
-                {% if apunte_editando %}
-                <button type="submit" class="btn-guardar">
-                    Guardar cambios
-                </button>
-                <a href="{% url 'apuntes:lista_mis_apuntes' %}"
-                   class="btn-cancelar">
-                    Cancelar
+            {# MOSTRAR ARCHIVO ACTUAL PARA CONTENIDO #}
+            {% if field.name == "contenido" and apunte_editando and apunte_editando.contenido %}
+            <div class="archivo-actual">
+                <p style="font-size: 0.8rem; color: var(--color-gray-100); margin: 8px 0 4px 0;">PDF actual:</p>
+                <a href="{{ apunte_editando.contenido.url }}" target="_blank"
+                   style="color: var(--color-seagreen); text-decoration: none; font-weight: 500;">
+                    📄 {{ apunte_editando.contenido.name }}
                 </a>
-                {% else %}
-                <button type="submit" class="btn-crear">
-                    Publicar apunte
-                </button>
-                {% endif %}
+                <p style="font-size: 0.7rem; color: var(--color-gray-100); margin: 4px 0 0 0;">Sube un nuevo PDF
+                    para reemplazarlo.</p>
             </div>
+            {% endif %}
 
-        </form>
-    </aside>
+            {% if field.errors %}
+            <span class="campo-error">{{ field.errors|join:", " }}</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="panel-acciones">
+            {% if apunte_editando %}
+            <!-- Modo Edición -->
+            <button type="submit" name="accion" value="guardar_cambios" class="btn-guardar">
+                Guardar cambios
+            </button>
+
+            <button type="submit" name="accion" value="enviar_revision" class="btn-guardar"
+                    style="background-color: #f39c12; color: white;">
+                Enviar a Revisión
+            </button>
+
+            <a href="{% url 'apuntes:lista_mis_apuntes' %}" class="btn-cancelar">
+                Cancelar
+            </a>
+            {% else %}
+            <!-- Modo Creación -->
+            <button type="submit" name="accion" value="publicar" class="btn-crear">
+                Publicar directamente
+            </button>
+
+            <button type="submit" name="accion" value="enviar_revision" class="btn-crear"
+                    style="background-color: #f39c12; border-color: #e67e22; color: white;">
+                Solicitar Revisión
+            </button>
+            {% endif %}
+        </div>
+
+    </form>
+</aside>

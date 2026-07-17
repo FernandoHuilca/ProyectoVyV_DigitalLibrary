@@ -31,8 +31,11 @@ def _procesar_toggle_guardado(request, apunte):
 @login_required
 def lista_apuntes(request):
     # Consultamos la base de datos de apuntes disponibles.
-    apuntes_bd = Apunte.objects.filter(disponible=True).order_by('-fecha_creacion')
-
+    #apuntes_bd = Apunte.objects.filter(disponible=True).order_by('-fecha_creacion')
+    apuntes_bd = Apunte.objects.filter(
+        disponible=True,
+        estado='PUBLICADO'
+    ).order_by('-fecha_creacion')
     # Añadimos los publicadores destacados del ranking
     top_publicadores = (
         PerfilEstudiante.objects

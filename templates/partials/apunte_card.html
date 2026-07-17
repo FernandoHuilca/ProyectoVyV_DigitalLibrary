@@ -52,23 +52,44 @@
     }
 </style>
 
+<!-- AQUÍ INICIA LA TARJETA PRINCIPAL -->
 <div class="libro">
-    {% if apunte.portada %}
-    <img class="portada-apunte"
-         src="{{ apunte.portada.url }}"
-         alt="Portada de {{ apunte.titulo }}">
-    {% else %}
-    <div class="portada-apunte"
-         style="background-color: var(--color-silver);
-                    display: flex; align-items: center; justify-content: center;">
-        Sin Portada
+
+    <!-- CONTENEDOR RELATIVO PARA QUE LA MEDALLA NO SE ESCAPE -->
+    <div class="portada-wrapper" style="position: relative; display: block; width: 100%;">
+
+        <!-- VERIFICACIÓN DE PORTADA -->
+        {% if apunte.portada %}
+            <img class="portada-apunte" src="{{ apunte.portada.url }}" alt="Portada">
+        {% else %}
+            <!-- Placeholder si no hay imagen -->
+            <div class="portada-apunte" style="background-color: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #64748b; font-weight: 500;">
+                Sin portada
+            </div>
+        {% endif %}
+
+        <!-- INSIGNIAS DE ESTADO (Avalado o Pendiente) -->
+        {% if apunte.revisiones.exists %}
+            {% with ultima_revision=apunte.revisiones.last %}
+                {% if ultima_revision.estado == 'APROBADO' %}
+                    <div class="badge-avalado" title="Revisado y avalado por {{ ultima_revision.revisor.username }}">
+                        <i class="fa-solid fa-shield-check"></i> Avalado
+                    </div>
+                {% elif ultima_revision.estado == 'PENDIENTE' %}
+                    <!-- Nueva medalla azul para estado pendiente -->
+                    <div class="badge-avalado" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);" title="Esperando revisión de {{ ultima_revision.revisor.username }}">
+                        <i class="fa-solid fa-clock"></i> Pendiente
+                    </div>
+                {% endif %}
+            {% endwith %}
+        {% endif %}
     </div>
-    {% endif %}
 
     <div class="titulo-apunte">{{ apunte.titulo }}</div>
 
     <div class="autor-apunte">
-        <a href="{% url 'modulo_usuarios:perfil_usuario' pk=apunte.autor.pk %}" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 8px;">
+        <a href="{% url 'modulo_usuarios:perfil_usuario' pk=apunte.autor.pk %}"
+           style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 8px;">
             {% if apunte.autor.foto_perfil %}
             <img src="{{ apunte.autor.foto_perfil.url }}"
                  alt="Foto de {{ apunte.autor.usuario.username }}"
@@ -95,9 +116,9 @@
               class="guardar-apunte-form">
             {% csrf_token %}
             <button
-                type="submit"
-                class="btn-icono-guardar {% if apunte.id in guardados %}is-guardado{% endif %}"
-                aria-label="{% if apunte.id in guardados %}Quitar de guardados{% else %}Guardar apunte{% endif %}">
+                    type="submit"
+                    class="btn-icono-guardar {% if apunte.id in guardados %}is-guardado{% endif %}"
+                    aria-label="{% if apunte.id in guardados %}Quitar de guardados{% else %}Guardar apunte{% endif %}">
                 <svg width="19"
                      height="20"
                      viewBox="0 0 19 20"
@@ -124,16 +145,75 @@
         <a href="#"
            class="btn-accion btn-eliminar"
            onclick="mostrarModalConfirmacion({
-       titulo: 'Eliminar apunte',
-       mensaje: '¿Estás seguro de que quieres eliminar?',
-       textoConfirmar: 'Eliminar',
-       tipo: 'peligro',
-       onConfirm: function() {
-           window.location.href = '{% url 'publicaciones:eliminar_apunte' apunte.pk %}';
-       }
-   }); return false;">
+               titulo: 'Eliminar apunte',
+               mensaje: '¿Estás seguro de que quieres eliminar?',
+               textoConfirmar: 'Eliminar',
+               tipo: 'peligro',
+               onConfirm: function() {
+                   window.location.href = '{% url 'publicaciones:eliminar_apunte' apunte.pk %}';
+               }
+           }); return false;">
             Eliminar
         </a>
     </div>
     {% endif %}
+
+    <!-- ALERTA DE APUNTE APROBADO -->
+    {% if apunte.estado == 'APROBADO' and es_propio %}
+    <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+        <p style="color: #166534; font-weight: 600; margin-top: 0; font-size: 0.9rem;">
+            <i class="fa-solid fa-check-circle"></i> ¡Tu apunte fue avalado!
+        </p>
+
+        {% with ultima_revision=apunte.revisiones.last %}
+        {% if ultima_revision %}
+        <p style="font-size: 0.85rem; color: #374151; margin-bottom: 10px;">
+            <strong>{{ ultima_revision.revisor.username }}</strong> dice:
+            <em>"{{ ultima_revision.comentario_revisor }}"</em>
+        </p>
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{% url 'publicaciones:confirmar_publicacion' apunte.pk %}">
+            {% csrf_token %}
+            <button type="submit"
+                    style="background-color: #16a34a; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; width: 100%;">
+                Confirmar y Hacer Público
+            </button>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- ALERTA DE APUNTE RECHAZADO (Requiere Cambios) -->
+    {% if apunte.estado == 'BORRADOR' and apunte.revisiones.exists and es_propio %}
+        {% with ultima_revision=apunte.revisiones.last %}
+            {% if ultima_revision.estado == 'RECHAZADO' %}
+            <div style="background-color: #fef2f2; border: 1px solid #fecaca; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <p style="color: #991b1b; font-weight: 600; margin-top: 0; font-size: 0.9rem;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Requiere correcciones
+                </p>
+                <p style="font-size: 0.85rem; color: #374151; margin-bottom: 0;">
+                    <strong>{{ ultima_revision.revisor.username }}</strong> dice:
+                    <em>"{{ ultima_revision.comentario_revisor }}"</em>
+                </p>
+                <p style="font-size: 0.8rem; color: #6b7280; margin-top: 5px;">
+                    Actualiza tu documento y vuelve a solicitar revisión.
+                </p>
+            </div>
+
+            <!-- ALERTA DE REVISIÓN PENDIENTE -->
+            {% elif ultima_revision.estado == 'PENDIENTE' %}
+            <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <p style="color: #1d4ed8; font-weight: 600; margin-top: 0; font-size: 0.9rem;">
+                    <i class="fa-solid fa-clock"></i> En revisión
+                </p>
+                <p style="font-size: 0.85rem; color: #475569; margin-bottom: 0; margin-top: 5px;">
+                    Esperando el aval de <strong>{{ ultima_revision.revisor.username }}</strong>.
+                </p>
+            </div>
+            {% endif %}
+        {% endwith %}
+    {% endif %}
+
 </div>
+<!-- FIN DE LA TARJETA PRINCIPAL -->

@@ -66,6 +66,16 @@
                     </button>
                 </a>
 
+                <!-- NUEVO BOTÓN: MIS REVISIONES -->
+                <a href="{% url 'publicaciones:mis_revisiones' %}" style="text-decoration: none;">
+                    <button class="boton-menu {% if request.resolver_match.url_name == 'mis_revisiones' %}activo{% endif %}">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M11 15L15 19L27 7M25 16V26C25 27.1046 24.1046 28 23 28H7C5.89543 28 5 27.1046 5 26V6C5 4.89543 5.89543 4 7 4H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Mis revisiones
+                    </button>
+                </a>
+
                 <hr style="width: 100%; border: 0.5px solid #c8c8c8; margin: 20px 0;">
 
                 <button class="boton-menu">
