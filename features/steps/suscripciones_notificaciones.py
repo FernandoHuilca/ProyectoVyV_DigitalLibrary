@@ -269,5 +269,55 @@ def step_impl(context: behave.runner.Context, consumidor: str):
     assert not Notificacion.objects.filter(receptor=context.usuarios[consumidor]).exists()
 
 
+@step('que la publicadora "{publicador}" tiene {suscriptores_previos:d} suscriptores y "{puntos_iniciales}" puntos de prestigio')
+def step_impl(context: behave.runner.Context, publicador: str, suscriptores_previos: int, puntos_iniciales: str):
+    usuario_publicador, perfil_publicador = _crear_usuario_con_perfil(publicador)
+    context.usuarios = {publicador: usuario_publicador}
+    context.perfiles = {publicador: perfil_publicador}
+    context.servicio_suscripciones = ServicioSuscripciones()
+
+    for indice in range(suscriptores_previos):
+        usuario_suscriptor, perfil_suscriptor = _crear_usuario_con_perfil(f"SuscriptorPrevio{indice}")
+        context.usuarios[f"SuscriptorPrevio{indice}"] = usuario_suscriptor
+        context.perfiles[f"SuscriptorPrevio{indice}"] = perfil_suscriptor
+        context.servicio_suscripciones.suscribir(perfil_suscriptor, perfil_publicador)
+
+    puntos_base = int(puntos_iniciales)
+    perfil_publicador.puntos_prestigio = puntos_base
+    perfil_publicador.save(update_fields=["puntos_prestigio"])
+    context.puntos_antes_hito = puntos_base
+
+
+@step('un nuevo estudiante se suscribe al perfil de "{publicador}"')
+def step_impl(context: behave.runner.Context, publicador: str):
+    usuario_nuevo, perfil_nuevo = _crear_usuario_con_perfil("NuevoSuscriptor")
+    context.usuarios["NuevoSuscriptor"] = usuario_nuevo
+    context.perfiles["NuevoSuscriptor"] = perfil_nuevo
+
+    context.servicio_suscripciones.suscribir(
+        perfil_nuevo,
+        context.perfiles[publicador],
+    )
+
+
+@step('"{publicador}" debe tener "{suscriptores_finales}" suscriptores')
+def step_impl(context: behave.runner.Context, publicador: str, suscriptores_finales: str):
+    total_actual = context.perfiles[publicador].suscriptores.count()
+    assert total_actual == int(suscriptores_finales)
+
+
+@step('sus puntos de prestigio deben incrementarse en {puntos:d} puntos')
+def step_impl(context: behave.runner.Context, puntos: int):
+    perfil_publicador = context.perfiles["Ana"]
+    perfil_publicador.refresh_from_db(fields=["puntos_prestigio"])
+    context.puntos_despues_hito = perfil_publicador.puntos_prestigio
+    assert context.puntos_despues_hito - context.puntos_antes_hito == puntos
+
+
+@step('su total de puntos de prestigio debe ser "{puntos_totales}"')
+def step_impl(context: behave.runner.Context, puntos_totales: str):
+    assert context.puntos_despues_hito == int(puntos_totales)
+
+
 
 

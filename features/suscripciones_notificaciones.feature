@@ -48,4 +48,18 @@ Característica: Suscripción y Notificaciones entre Publicador y Consumidor
     Cuando "Carlos" publica un nuevo apunte titulado "Álgebra Lineal"
     Entonces "Pepe" no debe recibir ninguna notificación de la plataforma
 
+  Esquema del escenario: Puntos de prestigio ganados al alcanzar hitos de suscripciones
+    Dado que la publicadora "Ana" tiene <suscriptores_previos> suscriptores y "<puntos_iniciales>" puntos de prestigio
+    Cuando un nuevo estudiante se suscribe al perfil de "Ana"
+    Entonces "Ana" debe tener "<suscriptores_finales>" suscriptores
+    Y sus puntos de prestigio deben incrementarse en <puntos> puntos
+    Y su total de puntos de prestigio debe ser "<puntos_totales>"
+
+    Ejemplos:
+      | suscriptores_previos | puntos_iniciales | suscriptores_finales | puntos | puntos_totales |
+      | 0                    | 100              | 1                    | 5      | 105            |
+      | 9                    | 105              | 10                   | 30     | 135            |
+      | 49                   | 135              | 50                   | 60     | 195            |
+      | 99                   | 195              | 100                  | 120    | 315            |
+
 

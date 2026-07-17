@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'modulo_apuntes',
-    'modulo_prestigio',
+    'modulo_prestigio.apps.ModuloPrestigioConfig',
     'behave_django',  # <-- pa usar el behave pero del Django si no, no funca
     'modulo_usuarios',
     'modulo_notificaciones.apps.ModuloNotificacionesConfig',
@@ -137,4 +137,5 @@ LOGIN_REDIRECT_URL = 'publicaciones:lista_apuntes'
 
 # A dónde enviar al usuario si intenta acceder a una vista protegida sin iniciar sesión
 LOGIN_URL = 'usuarios/login/'
+
 
