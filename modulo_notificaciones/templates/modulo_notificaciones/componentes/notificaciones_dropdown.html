@@ -1,0 +1,47 @@
+{% load static %}
+
+<div class="notifications-container">
+    <button class="notifications-trigger" id="notiBellBtn" title="Notificaciones">
+        <i class="fa-solid fa-bell"></i>
+        {% if notificaciones_pendientes_count > 0 %}
+            <span class="noti-badge">{{ notificaciones_pendientes_count }}</span>
+        {% endif %}
+    </button>
+
+    <div class="notifications-dropdown" id="notiDropdown">
+        <div class="dropdown-header">
+            <h4>Notificaciones</h4>
+            {% if notificaciones_pendientes_count > 0 %}
+                <a href="{% url 'notificaciones:marcar_todas_leidas' %}" class="mark-all-btn">Marcar todo</a>
+            {% endif %}
+        </div>
+        <ul class="dropdown-list">
+            {% for noti in mis_notificaciones %}
+                <li class="{% if not noti.leido %}unread{% endif %}">
+                    {% if noti.enlace %}
+                        <a href="{% url 'notificaciones:marcar_leida' noti.pk %}">
+                            <p class="noti-message">{{ noti.mensaje }}</p>
+                            <span class="noti-time">{{ noti.creado_en|timesince }}</span>
+                        </a>
+                    {% else %}
+                        <div class="noti-message-only">
+                            <div class="noti-informativa-content">
+                                <p class="noti-message">{{ noti.mensaje }}</p>
+                                <span class="noti-time">{{ noti.creado_en|timesince }}</span>
+                            </div>
+                            <a href="{% url 'notificaciones:marcar_leida' noti.pk %}" class="mark-single-btn" title="Marcar como leida" aria-label="Marcar como leida">
+                                <i class="fa-solid fa-check"></i>
+                            </a>
+                        </div>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li class="empty-state">
+                    <i class="fa-regular fa-bell-slash"></i>
+                    <p>No tienes notificaciones pendientes</p>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+

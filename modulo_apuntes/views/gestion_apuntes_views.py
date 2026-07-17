@@ -7,67 +7,92 @@ from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from modulo_apuntes.services import ServicioDescargas
 
-
+from modulo_apuntes.models.solicitud_revision import SolicitudRevision
 from modulo_apuntes.models import Apunte
 from modulo_apuntes.forms.ApunteCreacionForm import ApunteForm
+
 
 @login_required
 def mis_apuntes(request):
     """
     Vista única para listar, crear, actualizar y eliminar apuntes propios.
-
     """
     perfil = request.user.perfil
     apuntes = Apunte.objects.filter(autor=perfil).order_by('-fecha_creacion')
 
-    # Determinar modo: CREATE o UPDATE
     apunte_editando = None
     pk_editar = request.GET.get('editar')
 
     if pk_editar:
-        # Seguridad: solo el dueño puede cargar su apunte en el formulario
         apunte_editando = get_object_or_404(Apunte, pk=pk_editar, autor=perfil)
 
-    # Manejar POST (guardar)
     if request.method == 'POST':
         pk_post = request.POST.get('apunte_id')
         instancia = None
 
         if pk_post:
-            # UPDATE: verificar que el apunte pertenece al usuario
             instancia = get_object_or_404(Apunte, pk=pk_post, autor=perfil)
 
-        form = ApunteForm(request.POST, request.FILES, instance=instancia)
+        # NUEVO: Pasamos user=request.user al formulario para filtrar la lista de revisores
+        form = ApunteForm(request.POST, request.FILES, instance=instancia, user=request.user)
 
         if form.is_valid():
             apunte = form.save(commit=False)
             apunte.autor = perfil
-            apunte.save()
 
-            if instancia:
+            # NUEVO: Capturamos qué botón presionó el usuario y los datos extra
+            accion = request.POST.get('accion')
+            revisor = form.cleaned_data.get('revisor')
+            comentario_autor = form.cleaned_data.get('comentario_autor')
+
+            if accion == 'enviar_revision':
+                if not revisor:
+                    # Si intenta enviar a revisión pero no seleccionó a nadie
+                    form.add_error('revisor', 'Debes seleccionar un estudiante para revisar tu apunte.')
+                else:
+                    apunte.estado = 'EN_REVISION'
+                    apunte.save()
+
+                    # Creamos la solicitud de revisión en la base de datos
+                    SolicitudRevision.objects.create(
+                        apunte=apunte,
+                        revisor=revisor,
+                        estado='PENDIENTE',
+                        comentario_autor=comentario_autor
+                    )
+                    messages.success(request, f'"{apunte.titulo}" enviado a revisión correctamente.')
+                    return redirect('apuntes:lista_mis_apuntes')
+
+            elif accion == 'publicar':
+                apunte.estado = 'PUBLICADO'
+                apunte.save()
+                messages.success(request, f'"{apunte.titulo}" publicado en la plataforma.')
+                return redirect('apuntes:lista_mis_apuntes')
+
+            elif accion == 'guardar_cambios':
+                # Si solo está editando un apunte existente sin cambiar su estado
+                apunte.save()
                 messages.success(request, f'"{apunte.titulo}" actualizado correctamente.')
-            else:
-                messages.success(request, f'"{apunte.titulo}" publicado correctamente.')
+                return redirect('apuntes:lista_mis_apuntes')
 
-            return redirect('apuntes:lista_mis_apuntes')
+            # Fallback por si no coincide ninguna acción
+            if not form.errors:
+                apunte.save()
+                return redirect('apuntes:lista_mis_apuntes')
 
-        # Si el form no es válido, volvemos a mostrar la página
-        # con los errores Y el apunte que se estaba editando (si aplica)
         if pk_post:
             apunte_editando = get_object_or_404(Apunte, pk=pk_post, autor=perfil)
 
     else:
         # GET: inicializar formulario vacío o con instancia
-        form = ApunteForm(instance=apunte_editando)
+        # NUEVO: Pasamos user=request.user
+        form = ApunteForm(instance=apunte_editando, user=request.user)
 
     context = {
         'apuntes': apuntes,
         'form': form,
         'apunte_editando': apunte_editando,
         'total_apuntes': apuntes.count(),
-        # TODO: descomentar cuando se implementen las estadísticas
-        # 'total_vistas': ...,
-        # 'total_me_gustas': ...,
     }
     return render(request, 'lista_mis_apuntes.html', context)
 
@@ -104,6 +129,7 @@ def eliminar_apunte(request, pk):
     # Redirigir a la lista de mis apuntes
     return HttpResponseRedirect(reverse('apuntes:lista_mis_apuntes'))
 
+
 @login_required
 def descargar_apunte(request, pk):
     servicio_descargas = ServicioDescargas()
@@ -122,3 +148,25 @@ def descargar_apunte(request, pk):
         as_attachment=True,
         filename=apunte.contenido.name.split("/")[-1],
     )
+
+
+@login_required
+def publicar_apunte_aprobado(request, pk):
+    """
+    Vista exclusiva para que el autor confirme la publicación de un apunte
+    que ya fue aprobado por un revisor.
+    """
+    if request.method == 'POST':
+        # Buscamos el apunte asegurándonos de que le pertenezca al usuario (PerfilEstudiante)
+        apunte = get_object_or_404(Apunte, pk=pk, autor=request.user.perfil)
+
+        # Validamos que realmente tenga el estado correcto antes de publicarlo
+        if apunte.estado == 'APROBADO':
+            apunte.estado = 'PUBLICADO'
+            # Aprovechamos para marcarlo como disponible en la base de datos general
+            apunte.disponible = True
+            apunte.save()
+            messages.success(request, f'¡Excelente! "{apunte.titulo}" ya es público en la plataforma.')
+
+    # Redirigimos siempre a la lista de apuntes propios
+    return redirect('publicaciones:lista_mis_apuntes')

@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-21@zr3e!x@k@q6@2nujytx#*o0bs4#ed-z%lea=&(qcqqe+rbw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['testserver']
 
 # Application definition
 
@@ -37,8 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'modulo_apuntes',
+    'modulo_prestigio',
     'behave_django',  # <-- pa usar el behave pero del Django si no, no funca
     'modulo_usuarios',
+    'modulo_notificaciones.apps.ModuloNotificacionesConfig',
 ]
 
 MIDDLEWARE = [
@@ -64,6 +66,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                # Notificaciones
+                'modulo_notificaciones.context_processors.notificaciones_usuario',
             ],
         },
     },

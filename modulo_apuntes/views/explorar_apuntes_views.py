@@ -33,6 +33,11 @@ def _procesar_toggle_guardado(request, apunte):
 @login_required
 def lista_apuntes(request):
     # Consultamos la base de datos de apuntes disponibles.
+    #apuntes_bd = Apunte.objects.filter(disponible=True).order_by('-fecha_creacion')
+    apuntes_bd = Apunte.objects.filter(
+        disponible=True,
+        estado='PUBLICADO'
+    ).order_by('-fecha_creacion')
     servicio_calificacion = ServicioCalificacion()
     apuntes_bd = list(
         Apunte.objects.filter(disponible=True)

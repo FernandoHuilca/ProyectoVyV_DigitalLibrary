@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<style>
+    /* ── Layout Principal de Calificación ── */
+    .layout-calificacion {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 30px;
+        padding: 0 60px 60px 60px;
+        align-items: start;
+    }
+
+    /* ── Panel Izquierdo: Formulario ── */
+    .panel-evaluacion {
+        background-color: var(--color-white);
+        border-radius: var(--br-20);
+        box-shadow: var(--shadow-drop);
+        padding: 30px;
+        position: sticky;
+        top: 20px; /* Se queda fijo mientras haces scroll en el PDF */
+    }
+
+    .mensaje-autor-box {
+        background-color: var(--color-whitesmoke);
+        border-left: 4px solid var(--color-seagreen);
+        padding: 15px;
+        border-radius: 0 var(--br-8) var(--br-8) 0;
+        margin-bottom: 24px;
+    }
+
+    .mensaje-autor-box p.titulo-mensaje {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--color-seagreen);
+        margin: 0 0 6px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .mensaje-autor-box p.texto-mensaje {
+        margin: 0;
+        font-style: italic;
+        color: var(--color-black);
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    /* ── Botones de Evaluación ── */
+    .botones-evaluacion {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 24px;
+    }
+
+    .btn-aprobar {
+        background-color: var(--color-seagreen);
+        color: var(--color-white);
+        border: none;
+        padding: 14px;
+        border-radius: var(--br-8);
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s, transform 0.1s;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-aprobar:hover {
+        background-color: #0d7a54;
+    }
+
+    .btn-aprobar:active {
+        transform: scale(0.98);
+    }
+
+    .btn-rechazar {
+        background-color: transparent;
+        color: var(--color-pink);
+        border: 2px solid var(--color-pink);
+        padding: 12px;
+        border-radius: var(--br-8);
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-rechazar:hover {
+        background-color: #fff0f2;
+    }
+
+    /* ── Panel Derecho: Visor del PDF ── */
+    .panel-documento {
+        background-color: var(--color-white);
+        border-radius: var(--br-20);
+        box-shadow: var(--shadow-drop);
+        padding: 20px;
+        height: calc(100vh - 120px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .visor-frame {
+        width: 100%;
+        flex-grow: 1;
+        border: 1px solid var(--color-silver);
+        border-radius: var(--br-8);
+        background-color: var(--color-whitesmoke);
+    }
+
+    /* Clases reutilizadas de tu sistema (mis_apuntes_card.css) */
+    .campo-grupo label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--color-seagreen);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .campo-texto-area {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--color-silver);
+        border-radius: var(--br-8);
+        font-family: var(--font-inter);
+        font-size: 0.95rem;
+        box-sizing: border-box;
+        resize: vertical;
+    }
+
+    .campo-texto-area:focus {
+        outline: none;
+        border-color: var(--color-seagreen);
+    }
+
+    @media (max-width: 1000px) {
+        .layout-calificacion {
+            grid-template-columns: 1fr;
+            padding: 0 20px 40px 20px;
+        }
+        .panel-documento { height: 70vh; }
+        .panel-evaluacion { position: static; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="cabecera-principal" style="padding-bottom: 20px;">
+    <h1>Revisando: {{ apunte.titulo }}</h1>
+    <h3>Documento enviado por <strong>{{ apunte.autor.usuario.username }}</strong></h3>
+</section>
+
+<div class="layout-calificacion">
+
+    <!-- ── COLUMNA IZQUIERDA: Panel de Evaluación ── -->
+    <aside class="panel-evaluacion">
+        <h2 style="font-size: 1.3rem; margin: 0 0 20px 0;">Tu Veredicto</h2>
+
+        <!-- Mensaje del Autor (Estilizado como bloque de cita) -->
+        {% if solicitud.comentario_autor %}
+        <div class="mensaje-autor-box">
+            <p class="titulo-mensaje"><i class="fa-solid fa-quote-left"></i> Mensaje del autor</p>
+            <p class="texto-mensaje">"{{ solicitud.comentario_autor }}"</p>
+        </div>
+        {% endif %}
+
+        <!-- Formulario de Calificación -->
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="campo-grupo">
+                <label for="comentario_revisor">Tus comentarios (Feedback):</label>
+                <textarea
+                    name="comentario_revisor"
+                    id="comentario_revisor"
+                    class="campo-texto-area"
+                    rows="6"
+                    placeholder="Ej: Los conceptos están muy claros, pero revisa el ejercicio 3..."
+                    required></textarea>
+            </div>
+
+            <div class="botones-evaluacion">
+                <button type="submit" name="accion" value="aprobar" class="btn-aprobar">
+                    <i class="fa-solid fa-check-circle"></i> Aprobar Apunte
+                </button>
+                <button type="submit" name="accion" value="rechazar" class="btn-rechazar">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Solicitar Cambios
+                </button>
+            </div>
+        </form>
+    </aside>
+
+    <!-- ── COLUMNA DERECHA: Vista previa del documento ── -->
+    <main class="panel-documento">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2 style="font-size: 1.2rem; margin: 0;">Vista Previa</h2>
+
+            <!-- Botón secundario por si quieren abrirlo completo -->
+            <a href="{{ apunte.contenido.url }}" target="_blank" style="text-decoration: none; color: var(--color-seagreen); font-weight: 600; font-size: 0.9rem; padding: 6px 12px; border: 1px solid var(--color-seagreen); border-radius: var(--br-8); transition: all 0.2s;">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Pantalla completa
+            </a>
+        </div>
+
+        <!-- Incrustamos el PDF directamente -->
+        <iframe src="{{ apunte.contenido.url }}" class="visor-frame">
+            Este navegador no soporta visualización de PDFs. Por favor descarga el archivo.
+        </iframe>
+    </main>
+</div>
+{% endblock %}

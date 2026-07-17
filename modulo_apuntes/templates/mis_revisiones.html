@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<style>
+    /* ── Estilos específicos para la Bandeja de Revisiones ── */
+
+    .layout-revisiones {
+        padding: 0 60px 60px 60px;
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    /* Grid para las tarjetas (inspirado en contenedor-apuntes) */
+    .grid-revisiones {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 24px;
+        margin-top: 20px;
+    }
+
+    /* Estructura Base de la Tarjeta */
+    .card-revision {
+        background-color: var(--color-white);
+        border: 1px solid var(--color-silver);
+        border-radius: var(--br-12, 12px); /* Un borde un poco más suave */
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        box-shadow: var(--shadow-drop);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card-revision:hover {
+        transform: translateY(-4px);
+        box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Acentos visuales para los estados usando la paleta de global.css */
+    .card-revision.estado-pendiente {
+        border-left: 5px solid var(--color-yellow);
+    }
+
+    .card-revision.estado-aprobado {
+        border-left: 5px solid var(--color-seagreen);
+    }
+
+    .card-revision.estado-rechazado {
+        border-left: 5px solid var(--color-pink);
+    }
+
+    /* Tipografía interna de la tarjeta */
+    .revision-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .revision-titulo {
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--color-black);
+        line-height: 1.3;
+    }
+
+    .revision-meta {
+        font-size: 0.85rem;
+        color: var(--color-gray-100);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .revision-mensaje-caja {
+        background-color: var(--color-whitesmoke);
+        padding: 14px;
+        border-radius: var(--br-8);
+        border: 1px dashed var(--color-silver);
+    }
+
+    .revision-mensaje-caja p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #333;
+        font-style: italic;
+    }
+
+    .etiqueta-autor {
+        font-weight: 600;
+        color: var(--color-seagreen);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    /* Botón de Acción Principal (Call to Action) */
+    .btn-revisar-cta {
+        display: inline-block;
+        text-align: center;
+        width: 100%;
+        padding: 12px;
+        background-color: var(--color-seagreen);
+        color: var(--color-white);
+        border-radius: var(--br-8);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-top: auto; /* Empuja el botón siempre al fondo de la tarjeta */
+        transition: opacity 0.2s, background-color 0.2s;
+        box-sizing: border-box;
+    }
+
+    .btn-revisar-cta:hover {
+        background-color: #0d7a54; /* Un verde ligeramente más oscuro */
+        color: var(--color-white);
+    }
+
+    /* Badges para el historial */
+    .badge-veredicto {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-align: center;
+        margin-top: auto;
+    }
+
+    .badge-veredicto.aprobado {
+        background-color: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+    }
+
+    .badge-veredicto.rechazado {
+        background-color: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+
+    /* Mensaje de lista vacía adaptado de tu CSS */
+    .mensaje-vacio {
+        background-color: var(--color-white);
+        padding: 40px;
+        border-radius: var(--br-8);
+        text-align: center;
+        color: var(--color-gray-100);
+        border: 1px dashed var(--color-silver);
+        font-size: 0.95rem;
+    }
+
+    @media (max-width: 768px) {
+        .layout-revisiones {
+            padding: 0 20px 40px 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="cabecera-principal" style="padding-bottom: 20px;">
+    <h1>Bandeja de Revisiones</h1>
+    <h3>Apuntes de otros estudiantes esperando tu aval.</h3>
+</section>
+
+<div class="layout-revisiones">
+
+    <!-- ── SECCIÓN: PENDIENTES ── -->
+    <section class="seccion-pendientes">
+        <h2 class="panel-titulo" style="font-size: 1.4rem; margin-bottom: 10px;">
+            <i class="fa-regular fa-clock" style="color: var(--color-yellow); margin-right: 8px;"></i>
+            Pendientes de revisión ({{ pendientes.count }})
+        </h2>
+
+        {% if pendientes %}
+        <div class="grid-revisiones">
+            {% for solicitud in pendientes %}
+            <article class="card-revision estado-pendiente">
+
+                <div class="revision-header">
+                    <h3 class="revision-titulo">{{ solicitud.apunte.titulo }}</h3>
+                </div>
+
+                <p class="revision-meta">
+                    <i class="fa-regular fa-calendar"></i> {{ solicitud.fecha_creacion|date:"d M Y" }}
+                </p>
+
+                <div class="revision-mensaje-caja">
+                    <span class="etiqueta-autor">{{ solicitud.apunte.autor.usuario.username }} dice:</span>
+                    <p>“{{ solicitud.comentario_autor }}”</p>
+                </div>
+
+                <!-- Botón principal para ir a calificar -->
+                <a href="{% url 'apuntes:calificar_revision' solicitud.id %}" class="btn-revisar-cta">
+                    <i class="fa-solid fa-microscope" style="margin-right: 6px;"></i> Revisar Apunte
+                </a>
+
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="mensaje-vacio">
+            <i class="fa-solid fa-check-circle" style="font-size: 2rem; color: var(--color-seagreen); margin-bottom: 10px; display: block;"></i>
+            No tienes apuntes pendientes de revisión. ¡Todo al día!
+        </div>
+        {% endif %}
+    </section>
+
+    <hr style="border: 0; border-top: 1px solid var(--color-silver); margin: 20px 0;">
+
+    <!-- ── SECCIÓN: HISTORIAL ── -->
+    <section class="seccion-historial">
+        <h2 class="panel-titulo" style="font-size: 1.4rem; margin-bottom: 10px;">
+            <i class="fa-solid fa-list-check" style="color: var(--color-gray-100); margin-right: 8px;"></i>
+            Historial de Revisiones
+        </h2>
+
+        {% if historial %}
+        <div class="grid-revisiones">
+            {% for solicitud in historial %}
+            <article class="card-revision {% if solicitud.estado == 'APROBADO' %}estado-aprobado{% else %}estado-rechazado{% endif %}">
+
+                <div class="revision-header">
+                    <h3 class="revision-titulo">{{ solicitud.apunte.titulo }}</h3>
+                </div>
+
+                <p class="revision-meta">
+                    <i class="fa-solid fa-user-pen"></i> Autor: {{ solicitud.apunte.autor.usuario.username }}
+                </p>
+
+                {% if solicitud.estado == 'APROBADO' %}
+                    <div class="badge-veredicto aprobado">
+                        <i class="fa-solid fa-check"></i> Avalado por ti
+                    </div>
+                {% else %}
+                    <div class="badge-veredicto rechazado">
+                        <i class="fa-solid fa-rotate-left"></i> Solicitaste Cambios
+                    </div>
+                {% endif %}
+
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="mensaje-vacio">
+            Aún no has revisado ningún apunte en la plataforma.
+        </div>
+        {% endif %}
+    </section>
+
+</div>
+{% endblock %}

@@ -7,13 +7,27 @@
     <title>{% block title %}Notable{% endblock %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/global.css' %}">
+    <link rel="stylesheet" href="{% static 'modulo_notificaciones/css/notificaciones.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
+
+    <header class="main-header">
+        <div class="header-logo-section">
+            <span class="brand-logo">Notable</span>
+        </div>
+        <div class="header-actions-section">
+            {% if request.user.is_authenticated %}
+                {% include 'modulo_notificaciones/componentes/notificaciones_dropdown.html' %}
+            {% endif %}
+        </div>
+    </header>
+
     <div class="dasboard-principal">
 
         <aside class="rectangle-parent">
-            <a href="{% url 'modulo_usuarios:perfil_usuario' %}" style="text-decoration: none; display: flex; flex-direction: column; align-items: center;">
+            <a href="{% url 'modulo_usuarios:mi_perfil' %}" style="text-decoration: none; display: flex; flex-direction: column; align-items: center;">
                 <div class="perfil-seccion">
                     {% if user.perfil.foto_perfil %}
                         <img class="foto-perfil-sidebar" src="{{ user.perfil.foto_perfil.url }}" alt="Foto">
@@ -52,6 +66,16 @@
                     </button>
                 </a>
 
+                <!-- NUEVO BOTÓN: MIS REVISIONES -->
+                <a href="{% url 'publicaciones:mis_revisiones' %}" style="text-decoration: none;">
+                    <button class="boton-menu {% if request.resolver_match.url_name == 'mis_revisiones' %}activo{% endif %}">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M11 15L15 19L27 7M25 16V26C25 27.1046 24.1046 28 23 28H7C5.89543 28 5 27.1046 5 26V6C5 4.89543 5.89543 4 7 4H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Mis revisiones
+                    </button>
+                </a>
+
                 <hr style="width: 100%; border: 0.5px solid #c8c8c8; margin: 20px 0;">
 
                 <button class="boton-menu">
@@ -86,10 +110,10 @@
         </main>
 
     </div>
+
     {% block extra_scripts %}{% endblock %}
-
-     {% include 'partials/modal.html' %}
-
+    {% include 'partials/modal.html' %}
     <script src="{% static 'javascript/modal.js' %}"></script>
+    <script defer src="{% static 'modulo_notificaciones/js/notificaciones.js' %}"></script>
 </body>
 </html>

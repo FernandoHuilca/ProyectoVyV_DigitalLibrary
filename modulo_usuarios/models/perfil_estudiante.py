@@ -24,6 +24,12 @@ class PerfilEstudiante(models.Model):
     email_contacto = models.EmailField(blank=True, null=True, verbose_name="Email de Contacto")
     puntos_prestigio = models.IntegerField(default=0, verbose_name="Puntos de Prestigio")
     rango = models.CharField(max_length=50, default="prepo", verbose_name="Rango")
+    suscripciones = models.ManyToManyField(
+        'self',
+        symmetrical=False,
+        related_name='suscriptores',
+        blank=True,
+    )
 
     def __str__(self):
         return f"Perfil de {self.usuario.username}"
