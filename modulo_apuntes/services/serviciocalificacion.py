@@ -106,6 +106,7 @@ class ServicioCalificacion:
     def calificar(self, usuario: PerfilEstudiante, apunte: Apunte, tipo: str):
         self._validar_auto_voto(usuario, apunte)
         tipo_normalizado = self._normalizar_tipo(tipo)
+        calificacion_aplicada_util = False
 
         Apunte.objects.select_for_update().get(pk=apunte.pk)
         autor = PerfilEstudiante.objects.select_for_update().get(pk=apunte.autor_id)
@@ -121,14 +122,27 @@ class ServicioCalificacion:
         elif calificacion:
             calificacion.tipo = tipo_normalizado
             calificacion.save(update_fields=["tipo"])
+            calificacion_aplicada_util = tipo_normalizado == Calificacion.TIPO_UTIL
         else:
             Calificacion.objects.create(
                 usuario=usuario,
                 apunte=apunte,
                 tipo=tipo_normalizado,
             )
+            calificacion_aplicada_util = tipo_normalizado == Calificacion.TIPO_UTIL
 
         self.recalcular_prestigio_autor(autor)
+
+        if calificacion_aplicada_util:
+            from modulo_notificaciones.signals import apunte_calificado_signal
+
+            apunte_calificado_signal.send(
+                sender=Apunte,
+                apunte=apunte,
+                calificador=usuario,
+                tipo_calificacion=Calificacion.TIPO_UTIL,
+            )
+
         return self.prestigio_de_apunte(apunte)
 
     @transaction.atomic

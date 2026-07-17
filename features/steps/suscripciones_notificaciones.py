@@ -11,7 +11,7 @@ django.setup()
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from modulo_apuntes.models import Apunte, ApunteGuardado
+from modulo_apuntes.models import Apunte, ApunteGuardado, Calificacion
 from modulo_notificaciones.models import Notificacion
 from modulo_notificaciones.signals import apunte_calificado_signal
 from modulo_usuarios.services.servicio_suscripciones import ServicioSuscripciones
@@ -185,9 +185,19 @@ def step_impl(context: behave.runner.Context, nombre: str):
     assert context.apunte_publicado.autor_id != perfil_estudiante.id
 
 
-@step('"{nombre}" califica el apunte "{titulo}" como "útil"')
+@step('"{nombre}" da like útil al apunte "{titulo}"')
 def step_impl(context: behave.runner.Context, nombre: str, titulo: str):
     assert context.apunte_publicado.titulo == titulo
+    if nombre not in context.perfiles:
+        usuario_estudiante, perfil_estudiante = _crear_usuario_con_perfil(nombre)
+        context.usuarios[nombre] = usuario_estudiante
+        context.perfiles[nombre] = perfil_estudiante
+
+    Calificacion.objects.update_or_create(
+        usuario=context.perfiles[nombre],
+        apunte=context.apunte_publicado,
+        defaults={"tipo": Calificacion.TIPO_UTIL},
+    )
     apunte_calificado_signal.send(
         sender=Apunte,
         apunte=context.apunte_publicado,
@@ -196,14 +206,29 @@ def step_impl(context: behave.runner.Context, nombre: str, titulo: str):
     )
 
 
-@step('la notificación debe indicar que su apunte "{titulo}" recibió una nueva calificación')
-def step_impl(context: behave.runner.Context, titulo: str):
+@step('el apunte de "{titulo}" tiene {total:d} likes útiles')
+def step_impl(context: behave.runner.Context, titulo: str, total: int):
+    assert context.apunte_publicado.titulo == titulo
+
+    for indice in range(total):
+        usuario_like, perfil_like = _crear_usuario_con_perfil(f"Likeador{indice}")
+        context.usuarios[f"Likeador{indice}"] = usuario_like
+        context.perfiles[f"Likeador{indice}"] = perfil_like
+        Calificacion.objects.update_or_create(
+            usuario=perfil_like,
+            apunte=context.apunte_publicado,
+            defaults={"tipo": Calificacion.TIPO_UTIL},
+        )
+
+
+@step('la notificación debe indicar que su apunte "{titulo}" alcanzó los {total:d} likes')
+def step_impl(context: behave.runner.Context, titulo: str, total: int):
     assert context.notificaciones_destino.filter(
-        mensaje=f'Tu apunte "{titulo}" recibio una nueva calificacion util.'
+        mensaje=f'Tu apunte "{titulo}" ha alcanzado los {total} likes.'
     ).exists()
 
 
-@step('el estudiante "{nombre}" descarga el apunte "{titulo}"')
+@step('el estudiante "{nombre}" guarda el apunte "{titulo}" en su biblioteca')
 def step_impl(context: behave.runner.Context, nombre: str, titulo: str):
     if nombre not in context.perfiles:
         usuario_estudiante, perfil_estudiante = _crear_usuario_con_perfil(nombre)
@@ -217,10 +242,10 @@ def step_impl(context: behave.runner.Context, nombre: str, titulo: str):
     )
 
 
-@step('la notificación debe indicar que su apunte "{titulo}" fue descargado')
+@step('la notificación debe indicar que su apunte "{titulo}" fue guardado en biblioteca')
 def step_impl(context: behave.runner.Context, titulo: str):
     assert context.notificaciones_destino.filter(
-        mensaje=f'Tu apunte "{titulo}" fue descargado.'
+        mensaje=f'Tu apunte "{titulo}" fue guardado en la biblioteca de un estudiante.'
     ).exists()
 
 
@@ -242,6 +267,80 @@ def step_impl(context: behave.runner.Context, consumidor: str, publicador: str):
 @step('"{consumidor}" no debe recibir ninguna notificación de la plataforma')
 def step_impl(context: behave.runner.Context, consumidor: str):
     assert not Notificacion.objects.filter(receptor=context.usuarios[consumidor]).exists()
+
+
+@step('que la publicadora "{publicador}" tiene {suscriptores_previos:d} suscriptores y "{puntos_iniciales}" puntos de prestigio')
+def step_impl(context: behave.runner.Context, publicador: str, suscriptores_previos: int, puntos_iniciales: str):
+    usuario_publicador, perfil_publicador = _crear_usuario_con_perfil(publicador)
+    context.usuarios = {publicador: usuario_publicador}
+    context.perfiles = {publicador: perfil_publicador}
+    context.servicio_suscripciones = ServicioSuscripciones()
+
+    for indice in range(suscriptores_previos):
+        usuario_suscriptor, perfil_suscriptor = _crear_usuario_con_perfil(f"SuscriptorPrevio{indice}")
+        context.usuarios[f"SuscriptorPrevio{indice}"] = usuario_suscriptor
+        context.perfiles[f"SuscriptorPrevio{indice}"] = perfil_suscriptor
+        context.servicio_suscripciones.suscribir(perfil_suscriptor, perfil_publicador)
+
+    puntos_base = int(puntos_iniciales)
+    perfil_publicador.puntos_prestigio = puntos_base
+    perfil_publicador.save(update_fields=["puntos_prestigio"])
+    context.puntos_antes_hito = puntos_base
+
+
+@step('un nuevo estudiante se suscribe al perfil de "{publicador}"')
+def step_impl(context: behave.runner.Context, publicador: str):
+    usuario_nuevo, perfil_nuevo = _crear_usuario_con_perfil("NuevoSuscriptor")
+    context.alias_nuevo_suscriptor = "NuevoSuscriptor"
+    context.usuarios["NuevoSuscriptor"] = usuario_nuevo
+    context.perfiles["NuevoSuscriptor"] = perfil_nuevo
+
+    context.servicio_suscripciones.suscribir(
+        perfil_nuevo,
+        context.perfiles[publicador],
+    )
+
+
+@step('ese estudiante cancela su suscripción a "{publicador}"')
+def step_impl(context: behave.runner.Context, publicador: str):
+    alias = getattr(context, "alias_nuevo_suscriptor", "NuevoSuscriptor")
+    context.servicio_suscripciones.cancelar_suscripcion(
+        context.perfiles[alias],
+        context.perfiles[publicador],
+    )
+
+
+@step('ese estudiante se vuelve a suscribir a "{publicador}"')
+def step_impl(context: behave.runner.Context, publicador: str):
+    alias = getattr(context, "alias_nuevo_suscriptor", "NuevoSuscriptor")
+    context.servicio_suscripciones.suscribir(
+        context.perfiles[alias],
+        context.perfiles[publicador],
+    )
+
+
+@step('"{publicador}" debe tener "{suscriptores_finales}" suscriptores')
+def step_impl(context: behave.runner.Context, publicador: str, suscriptores_finales: str):
+    total_actual = context.perfiles[publicador].suscriptores.count()
+    assert total_actual == int(suscriptores_finales)
+
+
+@step('sus puntos de prestigio deben incrementarse en {puntos:d} puntos')
+def step_impl(context: behave.runner.Context, puntos: int):
+    perfil_publicador = context.perfiles["Ana"]
+    perfil_publicador.refresh_from_db(fields=["puntos_prestigio"])
+    context.puntos_despues_hito = perfil_publicador.puntos_prestigio
+    assert context.puntos_despues_hito - context.puntos_antes_hito == puntos
+
+
+@step('su total de puntos de prestigio debe ser "{puntos_totales}"')
+def step_impl(context: behave.runner.Context, puntos_totales: str):
+    if not hasattr(context, "puntos_despues_hito"):
+        perfil_publicador = context.perfiles["Ana"]
+        perfil_publicador.refresh_from_db(fields=["puntos_prestigio"])
+        context.puntos_despues_hito = perfil_publicador.puntos_prestigio
+
+    assert context.puntos_despues_hito == int(puntos_totales)
 
 
 

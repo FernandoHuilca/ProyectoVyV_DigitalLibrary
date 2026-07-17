@@ -4,8 +4,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import FileResponse
-from django.shortcuts import get_object_or_404
 from modulo_apuntes.services import ServicioDescargas
+from modulo_notificaciones.models import Notificacion
 
 from modulo_apuntes.models.solicitud_revision import SolicitudRevision
 from modulo_apuntes.models import Apunte
