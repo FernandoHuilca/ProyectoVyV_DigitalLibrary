@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.urls import reverse
 from modulo_apuntes.models.solicitud_revision import SolicitudRevision
 from modulo_notificaciones.models import Notificacion
-
+from modulo_prestigio.services import ServicioNivelesPrestigio # Importa el servicio
 
 @login_required
 def panel_revisiones(request):
@@ -34,6 +34,8 @@ def panel_revisiones(request):
 def calificar_revision(request, revision_id):
     solicitud = get_object_or_404(SolicitudRevision, pk=revision_id, revisor=request.user)
     apunte = solicitud.apunte
+    # Instanciamos el servicio de prestigio
+    servicio_prestigio = ServicioNivelesPrestigio()
 
     if request.method == 'POST':
         accion = request.POST.get('accion')
@@ -45,11 +47,16 @@ def calificar_revision(request, revision_id):
             solicitud.estado = 'APROBADO'
             apunte.estado = 'APROBADO'
 
+            # ── OTORGAMIENTO DE PUNTOS POR APROBAR ──
+            # Obtenemos el perfil del revisor (el usuario actual) y sumamos 15 puntos
+            perfil_revisor = request.user.perfil
+            servicio_prestigio.incrementar_prestigio(perfil_revisor, 15)
+
             # ── CREACIÓN DE LA NOTIFICACIÓN DE APROBACIÓN ──
             Notificacion.objects.create(
                 receptor=apunte.autor.usuario,
                 remitente=request.user,  # El revisor es el remitente
-                mensaje=f'✅ ¡Buenas noticias! Tu apunte "{apunte.titulo}" ha sido avalado y está listo para publicarse.',
+                mensaje=f' ¡Buenas noticias! Tu apunte "{apunte.titulo}" ha sido avalado y está listo para publicarse.',
                 enlace=reverse('publicaciones:lista_mis_apuntes')  # Al hacer clic, lo lleva a su panel
             )
 
@@ -61,14 +68,14 @@ def calificar_revision(request, revision_id):
             Notificacion.objects.create(
                 receptor=apunte.autor.usuario,
                 remitente=request.user,
-                mensaje=f'❌ Tu apunte "{apunte.titulo}" requiere algunos cambios. Revisa los comentarios.',
+                mensaje=f' Tu apunte "{apunte.titulo}" requiere algunos cambios. Revisa los comentarios.',
                 enlace=reverse('publicaciones:lista_mis_apuntes')
             )
 
         solicitud.save()
         apunte.save()
 
-        messages.success(request, f'Tu revisión para "{apunte.titulo}" fue enviada al autor.')
+        messages.success(request, f'Tu revisión para "{apunte.titulo}" fue enviada. ¡Has ganado 15 puntos de prestigio!')
         return redirect('publicaciones:mis_revisiones')
 
     context = {
