@@ -1,3 +1,4 @@
 from .servicioguardadoapuntes import ServicioGuardadoApuntes
 from .serviciodescargas import ServicioDescargas
 from .serviciocalificacion import ServicioCalificacion
+from .serviciocomentario import ServicioComentario

@@ -40,7 +40,7 @@
         <div class="prestige-badge">
             <div class="prestige-text">
                 <span class="small-text">PRESTIGIO</span>
-                <span class="points">{{ perfil_estudiante.puntos_prestigio|default_if_none:0 }} pts</span>
+                <span class="points">{{ perfil_estudiante.puntos_visibles|default_if_none:0 }} pts</span>
                 <span class="rank">{{ perfil_estudiante.rango|default:"Prepo" }}</span>
             </div>
             <i class="fa-solid fa-atom"></i>
@@ -80,7 +80,7 @@
                     </div>
                     <div class="stat-card">
                         <i class="fa-regular fa-heart"></i> {{ total_me_gustas|default:"1.8K" }}
-                        <span>Me gustas</span>
+                        <span>Total de utilidad de tus apuntes</span>
                     </div>
                     <div class="stat-card">
                         <i class="fa-solid fa-download"></i> {{ total_descargas|default:"0" }}

@@ -35,6 +35,15 @@ class PerfilEstudiante(models.Model):
         El modelo debe tener autor = FK(PerfilEstudiante)
         """
         return self.apuntes.count()
+
+    @property
+    def puntos_visibles(self) -> int:
+        """
+        Retorna los puntos de prestigio para mostrar en la interfaz.
+        Si en la base de datos el valor es negativo, en la UI se mostrará 0.
+        """
+        return max(0, self.puntos_prestigio)
+
 # SIGNAL: Crear perfil automáticamente
 @receiver(post_save, sender=User)
 def crear_perfil_usuario(sender, instance, created, **kwargs):

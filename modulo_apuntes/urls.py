@@ -8,6 +8,7 @@ urlpatterns = [
     # Usamos apuntes_views para mapear cada una de las rutas
     path('', explorar_apuntes_views.lista_apuntes, name='lista_apuntes'),
     path('apunte/<int:pk>/', explorar_apuntes_views.vista_apunte, name='vista_apunte'),
+    path('apunte/<int:pk>/comentarios/', explorar_apuntes_views.gestionar_comentario_apunte, name='gestionar_comentario_apunte'),
     path('apunte/<int:pk>/calificar/', explorar_apuntes_views.calificar_apunte, name='calificar_apunte'),
     path('apunte/<int:pk>/guardar/', explorar_apuntes_views.guardar_apunte, name='guardar_apunte'),
     path('mi-biblioteca/', explorar_apuntes_views.mi_biblioteca, name='mi_biblioteca'),

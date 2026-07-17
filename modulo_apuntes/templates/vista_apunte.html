@@ -5,6 +5,7 @@
 
 {% block extra_head %}
     <link rel="stylesheet" href="{% static 'css/vista_apunte.css' %}">
+    <link rel="stylesheet" href="{% static 'css/apunte_card.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -52,10 +53,10 @@
                     </button>
                 </form>
             </div>
-            <divd class="detalle-apunte-bloque">
+           <div class="detalle-apunte-bloque">
                 <span class="detalle-etiqueta">Votar</span>
                 {% include 'partials/votos_utilidad.html' with apunte=apunte %}
-            </divd>
+           </div>
            {% endif %}
 
            <div class="detalle-apunte-bloque">
@@ -88,6 +89,166 @@
             {% endif %}
         </article>
     </section>
+
+    <section class="seccion-comentarios">
+        <div class="seccion-comentarios-cabecera">
+            <h2>Comentarios</h2>
+            <p>Discusión plana en dos niveles.</p>
+        </div>
+
+        {% if request.user.is_authenticated %}
+            <form method="post" action="{% url 'apuntes:gestionar_comentario_apunte' apunte.pk %}" class="comentario-form comentario-form-nuevo" data-comentario-form="nuevo">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="crear_comentario">
+                <textarea name="contenido" maxlength="500" rows="4" placeholder="Escribe un comentario..." required></textarea>
+                <div class="comentario-form-info">
+                    <span>Máx. 500 caracteres</span>
+                    <span data-char-counter>0/500</span>
+                </div>
+                <button type="submit" class="comentario-btn">Publicar comentario</button>
+            </form>
+        {% endif %}
+
+        <div class="comentarios-lista">
+            {% for comentario in comentarios_principales %}
+                <article class="comentario-card">
+                    <div class="comentario-meta">
+                        <strong>{{ comentario.autor.usuario.username }}</strong>
+                        <span>{{ comentario.creado_en|date:"d/m/Y H:i" }}</span>
+                        {% if comentario.editado_en != comentario.creado_en %}
+                            <span class="comentario-editado">(editado)</span>
+                        {% endif %}
+                        {% if comentario.tiene_corazon %}
+                            <span class="comentario-corazon-estado">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.53L12 21.35z" fill="currentColor"/>
+                                </svg>
+                                Corazón recibido
+                            </span>
+                        {% endif %}
+                    </div>
+                    <p class="comentario-contenido">{{ comentario.contenido }}</p>
+
+                    <div class="comentario-acciones">
+                        {% if request.user.is_authenticated %}
+                            {% if request.user.perfil.id == comentario.autor_id %}
+                                <button type="button" class="comentario-btn comentario-btn-secundario" data-accion="mostrar-edicion" data-target="edicion-{{ comentario.id }}">
+                                    <svg class="comentario-icono" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M4 20h4l10.5-10.5a1.5 1.5 0 0 0 0-2.12l-1.88-1.88a1.5 1.5 0 0 0-2.12 0L4 16v4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                                    </svg>
+                                    Editar
+                                </button>
+                            {% endif %}
+                            {# Permitir responder a cualquier usuario autenticado #}
+                            <button type="button" class="comentario-btn comentario-btn-secundario" data-accion="mostrar-respuesta" data-target="respuesta-{{ comentario.id }}">
+                                <svg class="comentario-icono" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M10 14 4 8l6-6v4h4a8 8 0 0 1 8 8v2h-2v-2a6 6 0 0 0-6-6h-4v4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                                </svg>
+                                Responder
+                            </button>
+                        {% endif %}
+
+                        {% if request.user.is_authenticated and request.user.perfil.id == apunte.autor_id and request.user.perfil.id != comentario.autor_id %}
+                            <form method="post" action="{% url 'apuntes:gestionar_comentario_apunte' apunte.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="accion" value="toggle_corazon">
+                                <input type="hidden" name="comentario_id" value="{{ comentario.id }}">
+                                <button type="submit" class="comentario-btn comentario-btn-secundario comentario-corazon-btn {% if comentario.tiene_corazon %}is-activo{% endif %}">
+                                    <svg class="comentario-icono" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.53L12 21.35z" fill="{% if comentario.tiene_corazon %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                                    </svg>
+                                    {% if comentario.tiene_corazon %}Corazón dado{% else %}Dar corazón{% endif %}
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+
+                    {% if request.user.is_authenticated %}
+                        {# Se usa style="display: none;" inline para prevenir sobreescrituras del CSS #}
+                        <form method="post" action="{% url 'apuntes:gestionar_comentario_apunte' apunte.pk %}" class="comentario-form comentario-form-respuesta" data-comentario-form="respuesta-{{ comentario.id }}" style="display: none;">
+                            {% csrf_token %}
+                            <input type="hidden" name="accion" value="crear_comentario">
+                            <input type="hidden" name="parent_id" value="{{ comentario.id }}">
+                            <textarea name="contenido" maxlength="500" rows="3" placeholder="Responder..." required></textarea>
+                            <div class="comentario-form-info">
+                                <span>Máx. 500 caracteres</span>
+                                <span data-char-counter>0/500</span>
+                            </div>
+                            <div class="comentario-form-botones">
+                                <button type="submit" class="comentario-btn comentario-btn-secundario">Responder</button>
+                                <button type="button" class="comentario-btn comentario-btn-cancelar" data-accion="cancelar">Cancelar</button>
+                            </div>
+                        </form>
+                    {% endif %}
+
+                    {% if request.user.perfil.id == comentario.autor_id %}
+                        {# Se usa style="display: none;" inline para prevenir sobreescrituras del CSS #}
+                        <form method="post" action="{% url 'apuntes:gestionar_comentario_apunte' apunte.pk %}" class="comentario-form comentario-form-edicion" data-comentario-form="edicion-{{ comentario.id }}" style="display: none;">
+                            {% csrf_token %}
+                            <input type="hidden" name="accion" value="editar_comentario">
+                            <input type="hidden" name="comentario_id" value="{{ comentario.id }}">
+                            <textarea name="contenido" maxlength="500" rows="3" required>{{ comentario.contenido }}</textarea>
+                            <div class="comentario-form-info">
+                                <span>Máx. 500 caracteres</span>
+                                <span data-char-counter>{{ comentario.contenido|length }}/500</span>
+                            </div>
+                            <div class="comentario-form-botones">
+                                <button type="submit" class="comentario-btn">Guardar cambios</button>
+                                <button type="button" class="comentario-btn comentario-btn-cancelar" data-accion="cancelar">Cancelar</button>
+                            </div>
+                        </form>
+                    {% endif %}
+
+                    {% if comentario.respuestas_cargadas %}
+                        <div class="comentario-respuestas">
+                            {% for respuesta in comentario.respuestas_cargadas %}
+                                <article class="comentario-card comentario-card-respuesta">
+                                    <div class="comentario-meta">
+                                        <strong>{{ respuesta.autor.usuario.username }}</strong>
+                                        <span>{{ respuesta.creado_en|date:"d/m/Y H:i" }}</span>
+                                        {% if respuesta.editado_en != respuesta.creado_en %}
+                                            <span class="comentario-editado">(editado)</span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="comentario-contenido">
+                                        <span class="comentario-mencion">@{{ comentario.autor.usuario.username }}</span>
+                                        {{ respuesta.contenido }}
+                                    </p>
+
+                                    {% if request.user.is_authenticated and request.user.perfil.id == respuesta.autor_id %}
+                                        <div class="comentario-acciones comentario-acciones-respuesta">
+                                            <button type="button" class="comentario-btn comentario-btn-secundario" data-accion="mostrar-edicion" data-target="edicion-{{ respuesta.id }}">
+                                                <svg class="comentario-icono" viewBox="0 0 24 24" aria-hidden="true">
+                                                    <path d="M4 20h4l10.5-10.5a1.5 1.5 0 0 0 0-2.12l-1.88-1.88a1.5 1.5 0 0 0-2.12 0L4 16v4Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                                                </svg>
+                                                Editar
+                                            </button>
+                                        </div>
+                                        <form method="post" action="{% url 'apuntes:gestionar_comentario_apunte' apunte.pk %}" class="comentario-form comentario-form-edicion" data-comentario-form="edicion-{{ respuesta.id }}" style="display: none;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="accion" value="editar_comentario">
+                                            <input type="hidden" name="comentario_id" value="{{ respuesta.id }}">
+                                            <textarea name="contenido" maxlength="500" rows="2" required>{{ respuesta.contenido }}</textarea>
+                                            <div class="comentario-form-info">
+                                                <span>Máx. 500 caracteres</span>
+                                                <span data-char-counter>{{ respuesta.contenido|length }}/500</span>
+                                            </div>
+                                            <div class="comentario-form-botones">
+                                                <button type="submit" class="comentario-btn">Guardar cambios</button>
+                                                <button type="button" class="comentario-btn comentario-btn-cancelar" data-accion="cancelar">Cancelar</button>
+                                            </div>
+                                        </form>
+                                    {% endif %}
+                                </article>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </article>
+            {% empty %}
+                <p class="comentarios-vacio">Todavía no hay comentarios.</p>
+            {% endfor %}
+        </div>
+    </section>
 {% endblock %}
 
 {% block extra_scripts %}
@@ -95,4 +256,57 @@
         <script src="{% static 'js/vista_apunte.js' %}" type="module"></script>
     {% endif %}
     <script src="{% static 'js/votos.js' %}" type="module"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('[data-comentario-form] textarea').forEach(function (textarea) {
+                var form = textarea.closest('[data-comentario-form]');
+                var counter = form ? form.querySelector('[data-char-counter]') : null;
+                var max = parseInt(textarea.getAttribute('maxlength') || '500', 10);
+
+                function actualizar() {
+                    if (counter) {
+                        counter.textContent = textarea.value.length + '/' + max;
+                    }
+                }
+
+                actualizar();
+                textarea.addEventListener('input', actualizar);
+            });
+
+            // Mostrar/Ocultar formularios mediante el estilo display (robusto ante CSS)
+            document.querySelectorAll('[data-accion="mostrar-edicion"], [data-accion="mostrar-respuesta"]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var target = document.querySelector('[data-comentario-form="' + button.getAttribute('data-target') + '"]');
+                    if (!target) return;
+
+                    if (target.style.display === 'none') {
+                        // Ocultar otros formularios abiertos del mismo comentario para limpiar la vista
+                        var parentCard = button.closest('.comentario-card');
+                        if (parentCard) {
+                            parentCard.querySelectorAll('.comentario-form').forEach(function(f) {
+                                f.style.display = 'none';
+                            });
+                        }
+
+                        target.style.display = 'block';
+                        var textarea = target.querySelector('textarea');
+                        if (textarea) textarea.focus();
+                    } else {
+                        target.style.display = 'none';
+                    }
+                });
+            });
+
+            // Acción del botón Cancelar
+            document.querySelectorAll('[data-accion="cancelar"]').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    var form = button.closest('[data-comentario-form]');
+                    if (form) {
+                        form.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock %}
+

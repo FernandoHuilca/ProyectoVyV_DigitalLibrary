@@ -1,13 +1,13 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
-from django.db.models import Count, Q
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.db.models import Count, Prefetch, Q
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from modulo_apuntes.models import Apunte, ApunteGuardado, Calificacion  # Importamos ApunteGuardado
-from modulo_apuntes.services import ServicioGuardadoApuntes, ServicioCalificacion
+from modulo_apuntes.models import Apunte, ApunteGuardado, Calificacion, Comentario  # Importamos ApunteGuardado
+from modulo_apuntes.services import ServicioGuardadoApuntes, ServicioCalificacion, ServicioComentario
 from modulo_usuarios.models import PerfilEstudiante
 
 
@@ -82,10 +82,24 @@ def lista_apuntes(request):
 @login_required
 def vista_apunte(request, pk):
     servicio_calificacion = ServicioCalificacion()
+    comentarios_con_respuestas = Comentario.objects.select_related(
+        "autor__usuario",
+        "parent__autor__usuario",
+    ).order_by("creado_en")
     apunte = get_object_or_404(
         Apunte.objects.select_related("autor__usuario").annotate(
             total_utiles=Count("calificaciones", filter=Q(calificaciones__tipo=Calificacion.TIPO_UTIL)),
             total_no_utiles=Count("calificaciones", filter=Q(calificaciones__tipo=Calificacion.TIPO_NO_UTIL)),
+        ).prefetch_related(
+            Prefetch(
+                "comentarios",
+                queryset=Comentario.objects.filter(parent__isnull=True)
+                .select_related("autor__usuario")
+                .prefetch_related(
+                    Prefetch("respuestas", queryset=comentarios_con_respuestas, to_attr="respuestas_cargadas")
+                )
+                .order_by("creado_en"),
+            )
         ),
         pk=pk,
     )
@@ -96,6 +110,7 @@ def vista_apunte(request, pk):
     perfil_usuario = request.user.perfil
     apunte.prestigio_utilidad = servicio_calificacion.prestigio_de_apunte(apunte)
     apunte.mi_voto = servicio_calificacion.tipo_usuario_en_apunte(perfil_usuario, apunte)
+    apunte.comentarios_principales = list(apunte.comentarios.all())
 
     if request.method == "POST":
         # Reutilizamos la función auxiliar común
@@ -105,9 +120,60 @@ def vista_apunte(request, pk):
     contexto = {
         'apunte': apunte,
         'esta_guardado': servicio_guardados.esta_guardado(perfil_usuario, apunte),
+        'comentarios_principales': apunte.comentarios_principales,
     }
 
     return render(request, 'vista_apunte.html', contexto)
+
+
+@login_required
+@require_POST
+def gestionar_comentario_apunte(request, pk):
+    apunte = get_object_or_404(Apunte.objects.select_related("autor__usuario"), pk=pk)
+    servicio_comentario = ServicioComentario()
+    accion = request.POST.get("accion", "")
+    contenido = (request.POST.get("contenido", "") or "").strip()
+
+    try:
+        if accion == "crear_comentario":
+            if not contenido:
+                messages.error(request, "El comentario no puede estar vacío.")
+                return redirect("apuntes:vista_apunte", pk=apunte.pk)
+            parent_id = request.POST.get("parent_id") or None
+            parent = None
+            if parent_id:
+                parent = get_object_or_404(Comentario.objects.select_related("autor", "apunte"), pk=parent_id, apunte=apunte)
+            servicio_comentario.crear_comentario(
+                autor=request.user.perfil,
+                apunte=apunte,
+                contenido=contenido,
+                parent=parent,
+            )
+            messages.success(request, "Comentario publicado correctamente.")
+        elif accion == "editar_comentario":
+            if not contenido:
+                messages.error(request, "El comentario no puede estar vacío.")
+                return redirect("apuntes:vista_apunte", pk=apunte.pk)
+            comentario = get_object_or_404(Comentario.objects.select_related("autor", "apunte"), pk=request.POST.get("comentario_id"), apunte=apunte)
+            servicio_comentario.editar_comentario(
+                usuario_solicitante=request.user.perfil,
+                comentario=comentario,
+                nuevo_contenido=contenido,
+            )
+            messages.success(request, "Comentario actualizado correctamente.")
+        elif accion == "toggle_corazon":
+            comentario = get_object_or_404(Comentario.objects.select_related("autor", "apunte"), pk=request.POST.get("comentario_id"), apunte=apunte)
+            servicio_comentario.dar_corazon(
+                usuario_solicitante=request.user.perfil,
+                comentario=comentario,
+            )
+            messages.success(request, "Corazón actualizado correctamente.")
+        else:
+            messages.error(request, "Acción de comentario no soportada.")
+    except (PermissionDenied, ValidationError) as error:
+        messages.error(request, str(error))
+
+    return redirect("apuntes:vista_apunte", pk=apunte.pk)
 
 
 @login_required
