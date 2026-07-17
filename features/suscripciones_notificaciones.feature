@@ -26,15 +26,22 @@ Característica: Suscripción y Notificaciones entre Publicador y Consumidor
   Escenario: El publicador recibe notificación cuando su apunte es calificado como útil
     Dado que la publicadora "Ana" tiene publicado un apunte de "Termodinámica"
     Y el estudiante "Pepe" no es el autor del apunte
-    Cuando "Pepe" califica el apunte "Termodinámica" como "útil"
+    Cuando "Pepe" da like útil al apunte "Termodinámica"
     Entonces "Ana" debe recibir una notificación en la plataforma
-    Y la notificación debe indicar que su apunte "Termodinámica" recibió una nueva calificación
+    Y la notificación debe indicar que su apunte "Termodinámica" alcanzó los 1 likes
 
-  Escenario: El publicador recibe notificación cuando su apunte es descargado
+  Escenario: El publicador recibe notificación al alcanzar el hito de 10 likes
     Dado que la publicadora "Ana" tiene publicado un apunte de "Termodinámica"
-    Cuando el estudiante "Pepe" descarga el apunte "Termodinámica"
+    Y el apunte de "Termodinámica" tiene 9 likes útiles
+    Cuando "Pepe" da like útil al apunte "Termodinámica"
     Entonces "Ana" debe recibir una notificación en la plataforma
-    Y la notificación debe indicar que su apunte "Termodinámica" fue descargado
+    Y la notificación debe indicar que su apunte "Termodinámica" alcanzó los 10 likes
+
+  Escenario: El publicador recibe notificación cuando su apunte se guarda en biblioteca
+    Dado que la publicadora "Ana" tiene publicado un apunte de "Termodinámica"
+    Cuando el estudiante "Pepe" guarda el apunte "Termodinámica" en su biblioteca
+    Entonces "Ana" debe recibir una notificación en la plataforma
+    Y la notificación debe indicar que su apunte "Termodinámica" fue guardado en biblioteca
 
   Escenario: El consumidor no recibe notificación de publicadores a los que no está suscrito
     Dado que el consumidor "Pepe" no está suscrito al publicador "Carlos"

@@ -36,14 +36,14 @@
                     </a>
                 {% else %}
                     {% if ya_suscrito %}
-                        <form action="{% url 'notificaciones:cancelar_suscripcion' perfil_estudiante.pk %}" method="POST" style="display:inline;">
+                        <form action="{% url 'notificaciones:cancelar_suscripcion' perfil_estudiante.pk %}" method="POST" class="subscription-form">
                             {% csrf_token %}
                             <button type="submit" class="btn-unsubscribe">
                                 <i class="fa-solid fa-user-minus"></i> Suscrito
                             </button>
                         </form>
                     {% else %}
-                        <form action="{% url 'notificaciones:suscribirse' perfil_estudiante.pk %}" method="POST" style="display:inline;">
+                        <form action="{% url 'notificaciones:suscribirse' perfil_estudiante.pk %}" method="POST" class="subscription-form">
                             {% csrf_token %}
                             <button type="submit" class="btn-subscribe">
                                 <i class="fa-solid fa-user-plus"></i> Suscribirse

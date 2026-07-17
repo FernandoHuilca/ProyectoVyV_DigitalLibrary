@@ -11,7 +11,7 @@ django.setup()
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from modulo_apuntes.models import Apunte, ApunteGuardado
+from modulo_apuntes.models import Apunte, ApunteGuardado, Calificacion
 from modulo_notificaciones.models import Notificacion
 from modulo_notificaciones.signals import apunte_calificado_signal
 from modulo_usuarios.services.servicio_suscripciones import ServicioSuscripciones
@@ -185,9 +185,19 @@ def step_impl(context: behave.runner.Context, nombre: str):
     assert context.apunte_publicado.autor_id != perfil_estudiante.id
 
 
-@step('"{nombre}" califica el apunte "{titulo}" como "útil"')
+@step('"{nombre}" da like útil al apunte "{titulo}"')
 def step_impl(context: behave.runner.Context, nombre: str, titulo: str):
     assert context.apunte_publicado.titulo == titulo
+    if nombre not in context.perfiles:
+        usuario_estudiante, perfil_estudiante = _crear_usuario_con_perfil(nombre)
+        context.usuarios[nombre] = usuario_estudiante
+        context.perfiles[nombre] = perfil_estudiante
+
+    Calificacion.objects.update_or_create(
+        usuario=context.perfiles[nombre],
+        apunte=context.apunte_publicado,
+        defaults={"tipo": Calificacion.TIPO_UTIL},
+    )
     apunte_calificado_signal.send(
         sender=Apunte,
         apunte=context.apunte_publicado,
@@ -196,14 +206,29 @@ def step_impl(context: behave.runner.Context, nombre: str, titulo: str):
     )
 
 
-@step('la notificación debe indicar que su apunte "{titulo}" recibió una nueva calificación')
-def step_impl(context: behave.runner.Context, titulo: str):
+@step('el apunte de "{titulo}" tiene {total:d} likes útiles')
+def step_impl(context: behave.runner.Context, titulo: str, total: int):
+    assert context.apunte_publicado.titulo == titulo
+
+    for indice in range(total):
+        usuario_like, perfil_like = _crear_usuario_con_perfil(f"Likeador{indice}")
+        context.usuarios[f"Likeador{indice}"] = usuario_like
+        context.perfiles[f"Likeador{indice}"] = perfil_like
+        Calificacion.objects.update_or_create(
+            usuario=perfil_like,
+            apunte=context.apunte_publicado,
+            defaults={"tipo": Calificacion.TIPO_UTIL},
+        )
+
+
+@step('la notificación debe indicar que su apunte "{titulo}" alcanzó los {total:d} likes')
+def step_impl(context: behave.runner.Context, titulo: str, total: int):
     assert context.notificaciones_destino.filter(
-        mensaje=f'Tu apunte "{titulo}" recibio una nueva calificacion util.'
+        mensaje=f'Tu apunte "{titulo}" ha alcanzado los {total} likes.'
     ).exists()
 
 
-@step('el estudiante "{nombre}" descarga el apunte "{titulo}"')
+@step('el estudiante "{nombre}" guarda el apunte "{titulo}" en su biblioteca')
 def step_impl(context: behave.runner.Context, nombre: str, titulo: str):
     if nombre not in context.perfiles:
         usuario_estudiante, perfil_estudiante = _crear_usuario_con_perfil(nombre)
@@ -217,10 +242,10 @@ def step_impl(context: behave.runner.Context, nombre: str, titulo: str):
     )
 
 
-@step('la notificación debe indicar que su apunte "{titulo}" fue descargado')
+@step('la notificación debe indicar que su apunte "{titulo}" fue guardado en biblioteca')
 def step_impl(context: behave.runner.Context, titulo: str):
     assert context.notificaciones_destino.filter(
-        mensaje=f'Tu apunte "{titulo}" fue descargado.'
+        mensaje=f'Tu apunte "{titulo}" fue guardado en la biblioteca de un estudiante.'
     ).exists()
 
 
