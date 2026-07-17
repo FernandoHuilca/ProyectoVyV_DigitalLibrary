@@ -73,6 +73,42 @@
     background-color: #d97706;
 }
 
+.btn-subscribe,
+.btn-unsubscribe {
+    border: none;
+    border-radius: 9999px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-subscribe {
+    color: #ffffff;
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 6px 14px rgba(16, 185, 129, 0.24);
+}
+
+.btn-subscribe:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3);
+}
+
+.btn-unsubscribe {
+    color: #374151;
+    background-color: #f3f4f6;
+    border: 1px solid #d1d5db;
+}
+
+.btn-unsubscribe:hover {
+    background-color: #e5e7eb;
+    transform: translateY(-1px);
+}
+
 .prestige-badge {
     background-color: var(--color-seagreen);
     color: var(--color-white);
