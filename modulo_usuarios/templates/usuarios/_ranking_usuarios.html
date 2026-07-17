@@ -15,7 +15,7 @@
                         <span class="ranking-name">{{ perfil.usuario.get_full_name|default:perfil.usuario.username }}</span>
                         <span class="ranking-badge badge-{{ perfil.rango|lower }}">{{ perfil.rango }}</span>
                         <div class="rangin-stats">
-                            <span class = "info-Stats-label" >📝 {{ perfil.total_apuntes }} apuntes</span>
+                            <span class="info-Stats-label"><i class="fa-solid fa-file-lines"></i> {{ perfil.total_apuntes }} apuntes</span>
                         </div>
                     </div>
                 </a>

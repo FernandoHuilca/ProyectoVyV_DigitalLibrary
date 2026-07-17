@@ -2,11 +2,12 @@ from django.db.models.signals import m2m_changed, post_save, pre_save
 from django.dispatch import Signal, receiver
 from django.urls import reverse
 
-from modulo_apuntes.models import Apunte, ApunteGuardado, SolicitudRevision
+from modulo_apuntes.models import Apunte, ApunteGuardado, Calificacion, SolicitudRevision
 from modulo_notificaciones.models import Notificacion
 from modulo_usuarios.models import PerfilEstudiante
 
 apunte_calificado_signal = Signal()
+LIKE_MILESTONES = (1, 10, 50, 100)
 
 
 @receiver(pre_save, sender=Apunte)
@@ -45,15 +46,27 @@ def notificar_calificacion_util(sender, apunte, calificador, tipo_calificacion, 
     if apunte.autor_id == calificador.id:
         return
 
+    total_likes = apunte.calificaciones.filter(tipo=Calificacion.TIPO_UTIL).count()
+    if total_likes not in LIKE_MILESTONES:
+        return
+
+    mensaje = f'Tu apunte "{apunte.titulo}" ha alcanzado los {total_likes} likes.'
+    if Notificacion.objects.filter(
+        receptor=apunte.autor.usuario,
+        mensaje=mensaje,
+        enlace=reverse("publicaciones:vista_apunte", args=[apunte.pk]),
+    ).exists():
+        return
+
     Notificacion.objects.create(
         receptor=apunte.autor.usuario,
         remitente=calificador.usuario,
-        mensaje=f'Tu apunte "{apunte.titulo}" recibio una nueva calificacion util.',
+        mensaje=mensaje,
         enlace=reverse("publicaciones:vista_apunte", args=[apunte.pk]),
     )
 
 @receiver(post_save, sender=ApunteGuardado)
-def notificar_descarga_apunte(sender, instance, created, **kwargs):
+def notificar_guardado_en_biblioteca(sender, instance, created, **kwargs):
     if not created:
         return
 
@@ -66,7 +79,7 @@ def notificar_descarga_apunte(sender, instance, created, **kwargs):
     Notificacion.objects.create(
         receptor=apunte.autor.usuario,
         remitente=guardador.usuario,
-        mensaje=f'Tu apunte "{apunte.titulo}" fue descargado.',
+        mensaje=f'Tu apunte "{apunte.titulo}" fue guardado en la biblioteca de un estudiante.',
         enlace=reverse("publicaciones:vista_apunte", args=[apunte.pk]),
     )
 
